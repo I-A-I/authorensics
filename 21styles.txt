@@ -1,0 +1,50 @@
+// indicates not useful in this context
+
+1. type-token ratio - variety of vocabulary
+
+2. mean word length (may not be useful for informal)
+
+3. mean sentence length
+
+4. std dev sentence length
+
+//5. paragraph length
+
+//6. chapter length
+
+7. comma frequency
+
+8. semicolon frequency
+
+9. quotation frequency
+
+10. exclamation frequency (using ALL CAPS as well)
+
+11. hyphen frequency
+
+12. "and" frequency
+
+13 + 14. "but | however" frequency
+
+15. "if" frequency
+
+16. "that" frequency
+
+17. "more" frequency
+
+18. "must" frequency
+
+19. "might" frequency
+
+20. "this" frequency
+
+21. "very" frequency
+
+(22). spelling error frequency
+
+(23). emoticon frequency
+
+WINNOWING + BOOSTING (Decision Trees)
+
+http://www2.tcs.ifi.lmu.de/~ramyaa/publications/stylometry.pdf
+

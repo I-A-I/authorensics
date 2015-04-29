@@ -2,26 +2,28 @@ from flask import Flask,render_template,request
 
 app = Flask(__name__)
 
-@app.route("/results",methods=["GET","POST"])
-def login():
+#@app.route("/results",methods=["GET","POST"])
+#def results():
+#    return render_template()
+                               
+@app.route("/", methods=["GET","POST"])
+def index():
     if request.method=="GET":
-        return render_template("results.html")
+        return render_template("index.html")
     else:
-        counter = request.form["counter"]
         a = request.form["a"]
         i = 1
         t = []
-        while i <= counter:
-            t.append(request.form[str(i)])
-            i = i + 1
+        try:
+            while(1):
+                t.append(request.form[str(i)])
+                i = i + 1
+        except:
+            pass
         print(t)
         print(a)
         #Stuff goes here
         return render_template("results.html", a = a, t = t)
-                               
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 if __name__=="__main__":
     app.debug=True

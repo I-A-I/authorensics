@@ -11,29 +11,29 @@
   </head>
   <body>
     <center>
-      <h1>Authorensics</h1>
-      <form class="pure-form" method="POST">
-	<fieldset>
-	  <h3>How do you want to obtain the anonymous text?</h3>
-	  <button type="button" class="pure-button pure-button-primary" id="chat">Use FaceBook Chat</button>
-	  <button type="button" class="pure-button pure-button-primary" id="type">Use Type/Paste</button>
-	  <br><br>
-	  <div id="a"></div>
-	  <div id="comp">
-	    <textarea name="1" rows="4" cols="50" style="margin-bottom:20px;">Comparison Text #1 Goes Here!</textarea>
-	  </div>
-	  <button type="button" class="pure-button" id="add">Add A Comparison Text Field!</button>
-	  <br><br>
-	  <input class="pure-button pure-button-primary" type="submit" value="Find Author"></input>
-	</fieldset>
-      </form>
+      <div id="content">
+	<h1>Authorensics</h1>
+	<form class="pure-form" method="POST">
+	  <fieldset>
+	    <h3>How do you want to obtain the anonymous text?</h3>
+	    <button type="button" class="pure-button pure-button-primary" id="chat">Use FaceBook Chat</button>
+	    <button type="button" class="pure-button pure-button-primary" id="type">Use Type/Paste</button>
+	    <br><br>
+	    <div id="a"></div>
+	    <div id="comp">
+	      <textarea name="1" rows="4" cols="50" style="margin-bottom:20px;">Comparison Text #1 Goes Here!</textarea>
+	    </div>
+	    <button type="button" class="pure-button" id="add">Add A Comparison Text Field!</button>
+	    <br><br>
+	    <input class="pure-button pure-button-primary" type="submit" value="Find Author"></input>
+	  </fieldset>
+	</form>
+      </div>
     </center>
     <script>
       window.fbAsyncInit = function() {
         FB.init({
-.
-
-.          appId      : '1577102165903073',
+          appId      : '1577102165903073',
           xfbml      : true,
           version    : 'v2.3'
         });

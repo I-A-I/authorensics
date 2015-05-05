@@ -5,19 +5,18 @@ import re
 from collections import Counter
 import operator
 
+emoticons = [ x.strip() for x in open("emoji.txt").readlines() ]
+#CHECK EMOTICONS IN TOKENS
+
+
 sentence = "A cat ate a dog in the           \n          forest!!!!!! >.< >////< XD so rundum.\n#LOL #SORRYNOTSORRY #TRUF"
-
-
-emoticon_regex = re.compile('')
-emoticon_unicode_regex = re.compile('')
-
 
 
 PUNCTUATIONS = "!:\-,;.!?~"
 punctuation_regex = re.compile("(?:([\w]+)([" + PUNCTUATIONS + "]+)\s?)")
 
 def is_emoticon(s):
-    return 0
+    return s in emoticons
 
 def is_capitalized(s):
     return 0
@@ -50,8 +49,11 @@ class ChatParser:
     
     def parseParser(self):
         self.tokens = reduce(operator.add, map(lambda x : split_punctuations(x.split()), self.fragments))
-        self.word_count = dict(Counter(self.tokens))   
-        return [self.tokens, self.word_count]
+        self.emoticons = filter(lambda x : is_emoticon(x), self.tokens)
+        self.words = filter(lambda x : not is_emoticon(x), self.tokens)
+        self.word_count = dict(Counter(self.words))
+        self.emoticon_count = dict(Counter(self.emoticons))
+        return [self.tokens, self.word_count, self.emoticon_count]
 
 d = ChatParser(sentence)
 

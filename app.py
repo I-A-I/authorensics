@@ -11,17 +11,28 @@ def index():
     if request.method=="GET":
         return render_template("index.html")
     else:
-        a = request.form["a"]
-        i = 1
+        a = []
+        i = 2
         t = []
+        try:
+            a.append(request.form["a"])
+        except:
+            pass
+        try:
+            while(1):
+                a.append(request.form["a" + str(i)])
+                i = i + 1
+        except:
+            pass
+        i = 1
         try:
             while(1):
                 t.append(request.form[str(i)])
                 i = i + 1
         except:
             pass
-        print(t)
         print(a)
+        print(t)
         #Stuff goes here
         return render_template("results.html", a = a, t = t)
 

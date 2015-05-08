@@ -22,6 +22,7 @@ var chat = d3.select("#chat")
 var type = d3.select("#type")
     .on("click", function() {
 	if (!typebool) {
+	    a.append("br")
 	    a.append("textarea")
 	    	.attr("name", "a")
 		.style("width", "0px")
@@ -38,13 +39,13 @@ var type = d3.select("#type")
 	}
     });
 	
-var count = 1; // Keeps count of how many textareas you have added
-var button = d3.select("#add")
+var countc = 1; // Keeps count of how many textareas you have added
+d3.select("#addc")
     .on("click", function() {
-	count++;
+	countc++;
 	comp.append("br")
 	comp.append("textarea")
-	    .attr("name", count)
+	    .attr("name", countc)
 	    .style("width", "0px")
 	    .style("height", "0px") 
 	    .style("margin-bottom", "20px")
@@ -54,7 +55,25 @@ var button = d3.select("#add")
 	    .style("height", "107px")
 	    .transition()
 	    .delay(750)
-	    .text("Comparison Text #" + count + " Goes Here!");
+	    .text("Comparison Text #" + countc + " Goes Here!");
+    });
+var counta = 1; // Same thing as counter above
+d3.select("#adda")
+    .on("click", function() {
+	counta++;
+	a.append("br")
+	a.append("textarea")
+	    .attr("name", "a" + counta)
+	    .style("width", "0px")
+	    .style("height", "0px") 
+	    .style("margin-bottom", "20px")
+	    .transition()
+	    .duration(750)
+	    .style("width", "559px")
+	    .style("height", "107px")
+	    .transition()
+	    .delay(750)
+	    .text("Anonymous Text #" + counta + " Goes Here!");
     });
 
 //FB API Stuff
@@ -128,22 +147,18 @@ function displayFriends(response) {
 		}
 		var url = chats[parseInt(id)]["comments"]["paging"]["next"];
 		d3.json(url, function(json) {
-		    //console.log(json);
+		    s = "";
 		    for (var h = 0;h < json["data"].length;h++) {
-			//console.log(json["data"][h]["from"]["name"] + ": " + json["data"][h]["message"]);
-			//console.log("I WORK");
 			s = s + json["data"][h]["from"]["name"] + ": " + json["data"][h]["message"] + "\n";
-			//console.log("I DID SOMETHING WITH S");
-			//console.log("S is : " + s);
 			if (h == json["data"].length - 1) {
-			    console.log(s);
 			    d3.select("#list")
 				.remove();
 			    d3.select("#content")
 				.style("display", "inline");
-			    console.log("S is : " +s);
+			    counta++;
+			    a.append("br")
 			    a.append("textarea")
-	    			.attr("name", "a")
+	    			.attr("name", "a" + counta)
 				.style("width", "0px")
 				.style("height", "0px") 
 				.style("margin-bottom", "20px")

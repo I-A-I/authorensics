@@ -85,23 +85,25 @@ class ChatParser:
     def parseParser(self):
         self.tokens = reduce(operator.add, map(lambda x : split_punctuations(x.split()), self.fragments))
         self.spelling_errors = []
-        def dumb(x):
-            self.spelling_errors.append(x)
-            return x
-        self.tokens = map(lambda x : dumb(x) if correct(x) != x, self.tokens)
         self.emoticons = []
         self.words = []
         map(lambda x : self.emoticons.append(x) if is_emoticon(x) else self.words.append(x), self.tokens)
+        def dumb(x):
+            self.spelling_errors.append(x)
+            return correct(x)
+        self.words = map(lambda x : dumb(x) if correct(x) != x else x, self.words)
+        self.spelling_count = dict(Counter(self.spelling_errors))
         self.word_count = dict(Counter(self.words))
         self.emoticon_count = dict(Counter(self.emoticons))
-        return [self.tokens, self.word_count, self.emoticon_count]
+        return [self.word_count, self.emoticon_count, self.spelling_count]
 
-d = ChatParser(sentence)
+if __name__ == "__main__":
+    d = ChatParser(sentence)
 
-print d.parseParser()
+    print d.parseParser()
 
-d.addFragment("gdi, you are so bhed\n Plz")
+#d.addFragment("gdi, you are so bhed\n Plz")
 
-d.parseParser()
+#d.parseParser()
 
-print d.tokens
+#print d.tokens

@@ -1,5 +1,5 @@
 from flask import Flask,render_template,request
-import parse
+#import parse
 app = Flask(__name__)
 
 #@app.route("/results",methods=["GET","POST"])
@@ -35,8 +35,8 @@ def index():
             pass
         print(a)
         print(t)
-        d = parse.ChatParser(a)
-        print d.parseParser()
+       # d = parse.ChatParser(a)
+        #print d.parseParser()
         #Stuff goes here
         return render_template("results.html", a = a, t = t)
 

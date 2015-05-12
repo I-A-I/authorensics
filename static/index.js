@@ -2,13 +2,12 @@ console.log("HELLO");
 
 var comp = d3.select("#comp");
 var a = d3.select("#a");
-var typebool = false;
 var s = "";
 
 //Choose between using FB chat and user input
 var chat = d3.select("#chat")
     .on("click", function() {
-	if (typebool) {
+	/*if (typebool) { With multiple anonymous text areas, removal here is superficial
 	    a.select("textarea")
 		.transition()
 		.duration(500)
@@ -16,27 +15,26 @@ var chat = d3.select("#chat")
 		.style("height", "0px")
 		.remove();
 	    typebool = false;
-	}
+	}*/
 	FB.login(getUserData, {scope: "read_mailbox"});
     });
+var counta = 0;
 var type = d3.select("#type")
     .on("click", function() {
-	if (!typebool) {
-	    a.append("br")
-	    a.append("textarea")
-	    	.attr("name", "a")
-		.style("width", "0px")
-		.style("height", "0px") 
-		.style("margin-bottom", "20px")
-		.transition()
-		.duration(750)
-		.style("width", "559px")
-		.style("height", "107px")
-		.transition()
-		.delay(750)
-		.text("Anonymous Text Goes Here!");
-	    typebool = true;
-	}
+	counta++;
+	a.append("br")
+	a.append("textarea")
+	    .attr("name", "a" + counta)
+	    .style("width", "0px")
+	    .style("height", "0px") 
+	    .style("margin-bottom", "20px")
+	    .transition()
+	    .duration(750)
+	    .style("width", "559px")
+	    .style("height", "107px")
+	    .transition()
+	    .delay(750)
+	    .text("Anonymous Text #" + counta + " Goes Here!");
     });
 	
 var countc = 1; // Keeps count of how many textareas you have added
@@ -57,24 +55,6 @@ d3.select("#addc")
 	    .delay(750)
 	    .text("Comparison Text #" + countc + " Goes Here!");
     });
-var counta = 1; // Same thing as counter above
-d3.select("#adda")
-    .on("click", function() {
-	counta++;
-	a.append("br")
-	a.append("textarea")
-	    .attr("name", "a" + counta)
-	    .style("width", "0px")
-	    .style("height", "0px") 
-	    .style("margin-bottom", "20px")
-	    .transition()
-	    .duration(750)
-	    .style("width", "559px")
-	    .style("height", "107px")
-	    .transition()
-	    .delay(750)
-	    .text("Anonymous Text #" + counta + " Goes Here!");
-    });
 
 //FB API Stuff
 function getUserData() {
@@ -88,9 +68,23 @@ function getInbox(response) {
     FB.api("/me/inbox", {limit: 50 }, displayFriends);
 }
 
+function test(url, json) {
+    url = json["paging"]["next"];
+    s = "";
+    for (var h = 0;h < json["data"].length;h++) {
+	s = s + json["data"][h]["from"]["name"] + ": " + json["data"][h]["message"] + "\n";
+	if (h == json["data"].length - 1) {
+	    d3.select("#list")
+		.remove();
+	    d3.select("#content")
+		.style("display", "inline");
+	}
+    }
+}
+
 function displayFriends(response) {
     var chats = response.data;
-    
+    console.log(chats);
     //Remove everything and add a table
     d3.select("#content")
 	.style("display", "none");
@@ -145,16 +139,59 @@ function displayFriends(response) {
 			id = id + this.id[h];
 		    }
 		}
-		var url = chats[parseInt(id)]["comments"]["paging"]["next"];
-		d3.json(url, function(json) {
-		    s = "";
-		    for (var h = 0;h < json["data"].length;h++) {
-			s = s + json["data"][h]["from"]["name"] + ": " + json["data"][h]["message"] + "\n";
-			if (h == json["data"].length - 1) {
+		var url1 = chats[parseInt(id)]["comments"]["paging"]["next"];// + ".json";
+		var counter = 0;
+		var next = []
+		var prev = []
+		
+		var getURLNext = function(url) {
+		    d3.json(url, function(json) {
+			next.push(json["data"]);
+			//console.log("In Function: " + json["paging"]["next"]);
+			if (!("paging" in json) || counter > 7) {
+			    getURLPrev(url1);
+			} else {
+			    counter++;
+			    getURLNext(json["paging"]["next"]);
+			}
+		    });
+		}
+
+		var getURLPrev = function(url) {
+		    d3.json(url, function(json) {
+			prev.push(json["data"]);
+			//console.log("In Function: " + json["paging"]["next"]);
+			if (!("paging" in json) || counter > 7) {
+			    setUp();
+			} else {
+			    counter++;
+			    getURLPrev(json["paging"]["previous"]);
+			}
+		    });
+		}
+		
+		var setUp = function() {
+		    next.pop();
+		    prev.pop();
+		    prev = prev.reverse();
+		    prev.pop();
+		    console.log(next);
+		    console.log(prev);
+		    for (var h = 0;h < prev.length;h++) {
+			for (var k = 0;k < prev[h].length;k++) {
+			    s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+			}
+		    }
+		    for (var h = 0;h < next.length;h++) {
+			for (var k = 0;k < next[h].length;k++) {
+			    s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
+			}
+			if (h == next.length - 1) {
 			    d3.select("#list")
 				.remove();
 			    d3.select("#content")
 				.style("display", "inline");
+			    
 			    counta++;
 			    a.append("br")
 			    a.append("textarea")
@@ -171,7 +208,9 @@ function displayFriends(response) {
 				.text(s);
 			}
 		    }
-		});
-	    });
+		}
+
+		getURLNext(url1);
+	    })
     }
 }

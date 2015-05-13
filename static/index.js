@@ -84,7 +84,7 @@ function test(url, json) {
 
 function displayFriends(response) {
     var chats = response.data;
-    console.log(chats);
+    //console.log(chats);
     //Remove everything and add a table
     d3.select("#content")
 	.style("display", "none");
@@ -134,59 +134,60 @@ function displayFriends(response) {
 	//When you click on a row, it should get back the chat to put in the textbox
 	    .on("click", function() {
 		var id = "";
-		for (var h = 0;h < this.id.length;h++) {
+		s = "";
+		for (var h = 0;h < this.id.length;h++) { //Gets the ID of the row you clicked on
 		    if (!isNaN(parseInt(this.id[h]))) {
 			id = id + this.id[h];
 		    }
 		}
-		var url1 = chats[parseInt(id)]["comments"]["paging"]["next"];// + ".json";
-		var counter = 0;
-		var next = []
-		var prev = []
-		
+		var url1 = chats[parseInt(id)]["comments"]["paging"]["next"];// + ".json"; Original url
+		var next = [];
+		var prev = [];
+
+		//Recursively gets all "next" pages, then calls function below
 		var getURLNext = function(url) {
 		    d3.json(url, function(json) {
 			next.push(json["data"]);
 			//console.log("In Function: " + json["paging"]["next"]);
-			if (!("paging" in json) || counter > 7) {
+			if (!("paging" in json)) {
 			    getURLPrev(url1);
 			} else {
-			    counter++;
 			    getURLNext(json["paging"]["next"]);
 			}
 		    });
 		}
 
+		//Recursively gets all "previous" pages, then calls function below
 		var getURLPrev = function(url) {
 		    d3.json(url, function(json) {
 			prev.push(json["data"]);
 			//console.log("In Function: " + json["paging"]["next"]);
-			if (!("paging" in json) || counter > 7) {
+			if (!("paging" in json)) {
 			    setUp();
 			} else {
-			    counter++;
 			    getURLPrev(json["paging"]["previous"]);
 			}
 		    });
 		}
-		
+
+		//Orders the chat properly, then sets up the textbox
 		var setUp = function() {
 		    next.pop();
+		    next = next.reverse();
 		    prev.pop();
 		    prev = prev.reverse();
 		    prev.pop();
-		    console.log(next);
-		    console.log(prev);
-		    for (var h = 0;h < prev.length;h++) {
-			for (var k = 0;k < prev[h].length;k++) {
-			    s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
-			}
-		    }
+		    prev = prev.reverse();
 		    for (var h = 0;h < next.length;h++) {
 			for (var k = 0;k < next[h].length;k++) {
 			    s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
 			}
-			if (h == next.length - 1) {
+		    }
+		    for (var h = 0;h < prev.length;h++) {
+			for (var k = 0;k < prev[h].length;k++) {
+			    s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+			}
+			if (h == prev.length - 1) {
 			    d3.select("#list")
 				.remove();
 			    d3.select("#content")

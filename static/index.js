@@ -68,23 +68,18 @@ function getInbox(response) {
     FB.api("/me/inbox", {limit: 50 }, displayFriends);
 }
 
-function test(url, json) {
-    url = json["paging"]["next"];
-    s = "";
-    for (var h = 0;h < json["data"].length;h++) {
-	s = s + json["data"][h]["from"]["name"] + ": " + json["data"][h]["message"] + "\n";
-	if (h == json["data"].length - 1) {
-	    d3.select("#list")
-		.remove();
-	    d3.select("#content")
-		.style("display", "inline");
-	}
-    }
-}
-
 function displayFriends(response) {
     var chats = response.data;
     //console.log(chats);
+    if (chats == undefined) {
+	// FB API ERROR
+	alert("Too many Facebook API Requests! Try again in 15 minutes!");
+    } else {
+	getChats(chats);
+    }
+}
+
+function getChats(chats) {
     //Remove everything and add a table
     d3.select("#content")
 	.style("display", "none");
@@ -143,15 +138,48 @@ function displayFriends(response) {
 		var url1 = chats[parseInt(id)]["comments"]["paging"]["next"];// + ".json"; Original url
 		var next = [];
 		var prev = [];
-
+		var limit = 0; //Limit for how much FB can access
+		
+		//Loading bar
+		var load = 0; //Percent loaded
+		var list = d3.select("#list")
+		    .remove();
+		//console.log(list);
+		d3.select("center")
+		    .append("div")
+		    .attr("class", "progress")
+		    .style("margin", "25px 50px 25px 50px")
+		    .append("div")
+		    .attr("id", "load")
+		    .attr("class", "progress-bar progress-bar-striped active")
+		    .attr("role", "progressbar")
+		    .attr("aria-valuenow", 0)
+		    .attr("aria-valuemin", 0)
+		    .attr("aria-valuemax", 100)
+		    .style("width", "0%")
+		d3.select("center")[0][0].appendChild(list[0][0]);
+		
 		//Recursively gets all "next" pages, then calls function below
 		var getURLNext = function(url) {
 		    d3.json(url, function(json) {
+			//console.log(json);
 			next.push(json["data"]);
 			//console.log("In Function: " + json["paging"]["next"]);
-			if (!("paging" in json)) {
+			if (!("paging" in json) || limit > 10) {
+			    limit = 0;
+			    load = 88;
+			    d3.select("#load")
+				.style("width", load + "%")
+				.attr("aria-valuenow", load)
+				.text(load + "%");
 			    getURLPrev(url1);
 			} else {
+			    load = load + 8;
+			    d3.select("#load")
+				.style("width", load + "%")
+				.attr("aria-valuenow", load)
+				.text(load + "%");
+			    limit++;
 			    getURLNext(json["paging"]["next"]);
 			}
 		    });
@@ -162,9 +190,21 @@ function displayFriends(response) {
 		    d3.json(url, function(json) {
 			prev.push(json["data"]);
 			//console.log("In Function: " + json["paging"]["next"]);
-			if (!("paging" in json)) {
+			if (!("paging" in json) || limit > 10) {
+			    limit = 0;
+			    load = 100;
+			    d3.select("#load")
+				.style("width", load + "%")
+				.attr("aria-valuenow", load)
+				.text(load + "%");
 			    setUp();
 			} else {
+			    load = 100;
+			    d3.select("#load")
+				.style("width", load + "%")
+				.attr("aria-valuenow", load)
+				.text(load + "%");
+			    limit++;
 			    getURLPrev(json["paging"]["previous"]);
 			}
 		    });
@@ -178,17 +218,29 @@ function displayFriends(response) {
 		    prev = prev.reverse();
 		    prev.pop();
 		    prev = prev.reverse();
+		    //console.log(next);
+		    //console.log(prev);
 		    for (var h = 0;h < next.length;h++) {
 			for (var k = 0;k < next[h].length;k++) {
-			    s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
+			    if (next[h][k]["from"] == undefined) { //Sometimes the "from" is missing? Stupid FB API
+				s = s + next[h][k]["message"] + "\n";
+			    } else {
+				s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
+			    }
 			}
 		    }
 		    for (var h = 0;h < prev.length;h++) {
 			for (var k = 0;k < prev[h].length;k++) {
-			    s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+			    if (prev[h][k]["from"] == undefined) {
+				s = s + prev[h][k]["message"] + "\n";
+			    } else {
+				s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+			    }
 			}
-			if (h == prev.length - 1) {
+			if (h == prev.length - 1) {	    
 			    d3.select("#list")
+				.remove();
+			    d3.select(".progress")
 				.remove();
 			    d3.select("#content")
 				.style("display", "inline");

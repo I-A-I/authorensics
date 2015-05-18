@@ -41,9 +41,10 @@ var countc = 1; // Keeps count of how many textareas you have added
 d3.select("#addc")
     .on("click", function() {
 	countc++;
-	comp.append("br")
+	comp.append("br")	
 	comp.append("textarea")
 	    .attr("name", countc)
+	    .attr("id", "c" + countc)
 	    .style("width", "0px")
 	    .style("height", "0px") 
 	    .style("margin-bottom", "20px")
@@ -54,6 +55,19 @@ d3.select("#addc")
 	    .transition()
 	    .delay(750)
 	    .text("Comparison Text #" + countc + " Goes Here!");
+	comp.insert("input", "#c" + countc)
+	    .attr("name", "n" + countc)
+	    .style("margin-bottom", "20px")
+	    .attr("type", "text")
+	    .style("width", "0px")
+	    .style("margin-right", "10px")
+	    .transition()
+	    .delay(750)
+	    .duration(250)
+	    .style("width", "189px")
+	    .transition()
+	    .delay(1000)
+	    .attr("value", "Name");
     });
 
 //FB API Stuff

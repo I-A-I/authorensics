@@ -14,12 +14,8 @@ def index():
         return render_template("index.html")
     else:
         a = []
-        i = 2
-        t = []
-        try:
-            a.append(request.form["a"])
-        except:
-            pass
+        i = 1
+        t = {}
         try:
             while(1):
                 a.append(request.form["a" + str(i)])
@@ -29,7 +25,7 @@ def index():
         i = 1
         try:
             while(1):
-                t.append(request.form[str(i)])
+                t[request.form["n" + str(i)]] = request.form[str(i)]
                 i = i + 1
         except:
             pass

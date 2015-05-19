@@ -36,12 +36,17 @@ class Profile:
         # ... Count n-grams
         # ... Sort descendingly
         # ... Discard frequency to save memory (?)
+
+
     # Return array of arrays
     def analyze_text(self):
-        self.ngrams = reduce(operator.add, reduce(operator.add, map(lambda x : find_uni_ngrams(x), self.texts)))
-        self.ngram_counters = dict(Counter(self.ngrams))
+        # return find_uni_ngrams(self.texts[0])
+        # print map(lambda x : find_uni_ngrams(x), self.texts)
+        self.ngrams = [list(a[0]) for a in zip(*map(lambda x : find_uni_ngrams(x), self.texts))]
+        self.ngram_counters = map(lambda x : dict(Counter(x)), self.ngrams)
         return self.ngram_counters
 
+    
     # Add multiple textsshell
     
     def add_texts(self, *new_texts):
@@ -52,7 +57,14 @@ class Profile:
     # Similarity should probably be an _absolute_ measure of intersection
     # Not a proportion
 
+def sort_text(ng_c):
+    ngram = []
+    
+    for x in ng_c:
+        pass
+    pass
 
+    
 """ THIS IS USED FOR MAGNITUDE STUFF WHICH WE MIGHT NOT USE?!?!??!!?!?!? MAYBE INCLUDE FOR FUN
 
 def find_intersection(p1, p2):
@@ -82,9 +94,10 @@ if __name__ == "__main__":
     og = Profile()
     og.add_text("watsup homedog ziwei, how you doin. Philipp has achieved nirvana and is now doing stuff for a teacher. wut a good guy. steven is still working with fb. i hve nothign to do D: LOL")
     text = og.analyze_text()
-    print find_distance(text,text)
-    print find_distance(s.analyze_text(),text)
-    print find_distance(p.analyze_text(),text)
+    print text
+    #print find_distance(text,text)
+    #print find_distance(s.analyze_text(),text)
+    #print find_distance(p.analyze_text(),text)
     text = \
 """
 

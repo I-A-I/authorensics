@@ -44,6 +44,11 @@ class Profile:
         # print map(lambda x : find_uni_ngrams(x), self.texts)
         self.ngrams = [list(a[0]) for a in zip(*map(lambda x : find_uni_ngrams(x), self.texts))]
         self.ngram_counters = map(lambda x : dict(Counter(x)), self.ngrams)
+        # print self.ngram_counters
+        # print "\n\n\n\n\n\n"
+        # for x in xrange(len(self.ngram_counters)):
+        #     self.ngram_counters[x] = filter(lambda y : y[1] != 1, self.ngram_counters[x].items())
+        #     print self.ngram_counters[x] , "\n"
         return self.ngram_counters
 
     
@@ -58,34 +63,15 @@ class Profile:
     # Not a proportion
 
 def sort_text(ng_c):
+    #sorts the list of dictionaries of ngrams and returns the top 10 results
     ngram = []
     
     for x in ng_c:
-        pass
-    pass
-
-    
-""" THIS IS USED FOR MAGNITUDE STUFF WHICH WE MIGHT NOT USE?!?!??!!?!?!? MAYBE INCLUDE FOR FUN
-
-def find_intersection(p1, p2):
-    # Finds the intersection of two dictionaries
-    # Returns a dictionary
-    d = {}
-    for x in p1.keys():
-        if x in p2.keys():
-            d[x] = min([p1[x],p2[x]])
-    return d
+        ngram.append(dict(sorted(x.items(), key=operator.itemgetter(1), reverse = True)[:10]))
+        
+    return ngram
 
 
-    
-def find_distance(p1,p2):
-    # Finds the distance between to dictionaries
-    # Returns a magnitude. The higher the magnitude, the more similar
-    tup = [x*x for x in find_intersection(p1,p2).values()]
-    tup = sum(tup)
-    tup = tup/(1.0*max([len(p1.keys()),len(p2.keys())]))
-    return tup
-"""
 if __name__ == "__main__":
     s = Profile()
     s.add_text("this is a story about ziwei and his Agar.io :D\nHe is rlly gud at dat game. philipp has acheived nirvana. steven still has to deal with fb's bs. LOL That's some unicode for  you.")
@@ -94,16 +80,9 @@ if __name__ == "__main__":
     og = Profile()
     og.add_text("watsup homedog ziwei, how you doin. Philipp has achieved nirvana and is now doing stuff for a teacher. wut a good guy. steven is still working with fb. i hve nothign to do D: LOL")
     text = og.analyze_text()
-    print text
+    #print text
+    print sort_text(text)
     #print find_distance(text,text)
     #print find_distance(s.analyze_text(),text)
     #print find_distance(p.analyze_text(),text)
-    text = \
-"""
-
-
-
-
-
-
-"""
+    

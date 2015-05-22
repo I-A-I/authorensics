@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <style>
+      .bordered {
+      border-style:solid;
+      border-width:1px;
+      }
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+  </head>
+  <body>
+    <center>
+      <div id="content">
+	<h1>Authorensics Results</h1>
+	{% for key, value in p.iteritems() %}
+	<h3 id={{ key }}>{{ key }}: {{ value }}%</h3>
+	{% endfor %}
+      </div>
+    </center>
+    <script src="static/results.js"></script>
+  </body>
+</html>

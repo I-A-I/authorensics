@@ -34,7 +34,8 @@ def index():
        # d = parse.ChatParser(a)
         #print d.parseParser()
         #Stuff goes here
-        return render_template("results.html", a = a, t = t)
+        p = {"test1": 50, "test2": 75}
+        return render_template("results.html", p = p)
 
 if __name__=="__main__":
     app.debug=True

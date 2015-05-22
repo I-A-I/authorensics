@@ -3,6 +3,7 @@ console.log("HELLO");
 var comp = d3.select("#comp");
 var a = d3.select("#a");
 var s = "";
+var user_data;
 
 //Choose between using FB chat and user input
 var chat = d3.select("#chat")
@@ -79,6 +80,7 @@ function getInbox(response) {
     if (response.error) {
     }
     user_data = response;
+    //console.log(user_data);
     FB.api("/me/inbox", {limit: 50 }, displayFriends);
 }
 
@@ -237,18 +239,24 @@ function getChats(chats) {
 		    for (var h = 0;h < next.length;h++) {
 			for (var k = 0;k < next[h].length;k++) {
 			    if (next[h][k]["from"] == undefined) { //Sometimes the "from" is missing? Stupid FB API
-				s = s + next[h][k]["message"] + "\n";
+				//s = s + next[h][k]["message"] + "\n";
+				null;
 			    } else {
-				s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
+				if (next[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
+				    s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
+				}
 			    }
 			}
 		    }
 		    for (var h = 0;h < prev.length;h++) {
 			for (var k = 0;k < prev[h].length;k++) {
 			    if (prev[h][k]["from"] == undefined) {
-				s = s + prev[h][k]["message"] + "\n";
+				//s = s + prev[h][k]["message"] + "\n";
+				null;
 			    } else {
-				s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+				if (prev[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
+				    s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+				}
 			    }
 			}
 			if (h == prev.length - 1) {	    

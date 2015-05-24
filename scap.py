@@ -1,5 +1,4 @@
 from collections import Counter
-import operator
 
 # This is the Source Code Authorship Profile (SCAP) method
 # Based primarily on "Identifying Authorship by Byte-Level N-Grams:The Source Code Author Profile (SCAP) Method"
@@ -19,45 +18,6 @@ def find_uni_ngrams(s):
     for k in xrange(N_GRAM_MIN, N_GRAM_MAX+1):
         x.append(find_ngram(s, k))
     return x
-
-# Class for author profile
-class Profile:
-    def __init__(self, name="", *rest_text):
-        self.name = name
-        self.texts = []
-        if rest_text:
-            apply(self.add_texts, rest_text)
-
-    # Add a single text
-    def add_text(self, new_text):
-        self.texts.append(unicode(new_text,'utf-8'))
-
-    # For every n-gram between N_GRAM_MIN and N_GRAM_MAX:
-        # ... Count n-grams
-        # ... Sort descendingly
-        # ... Discard frequency to save memory (?)
-
-
-    # Return array of arrays
-    def analyze_text(self):
-        # return find_uni_ngrams(self.texts[0])
-        # print map(lambda x : find_uni_ngrams(x), self.texts)
-        self.ngrams = [list(a[0]) for a in zip(*map(lambda x : find_uni_ngrams(x), self.texts))]
-        self.ngram_counters = map(lambda x : dict(Counter(x)), self.ngrams)
-        # print self.ngram_counters
-        # print "\n\n\n\n\n\n"
-        # for x in xrange(len(self.ngram_counters)):
-        #     self.ngram_counters[x] = filter(lambda y : y[1] != 1, self.ngram_counters[x].items())
-        #     print self.ngram_counters[x] , "\n"
-        return self.ngram_counters
-
-    
-    # Add multiple textsshell
-    
-    def add_texts(self, *new_texts):
-        for new_text in new_texts:
-            self.add_text(new_text)
-
     # For each n-gram, use the shorter profile for comparison
     # Similarity should probably be an _absolute_ measure of intersection
     # Not a proportion
@@ -65,24 +25,46 @@ class Profile:
 def sort_text(ng_c):
     #sorts the list of dictionaries of ngrams and returns the top 10 results
     ngram = []
-    
     for x in ng_c:
         ngram.append(dict(sorted(x.items(), key=operator.itemgetter(1), reverse = True)[:10]))
-        
     return ngram
 
+def find_intersection(p1, p2):
+    # Finds the intersection of two dictionaries
+    # Returns a dictionary
+    d = {x : min(p1[x], p2[x]) for x in p1 if x in p2}
+    return d
 
-if __name__ == "__main__":
-    s = Profile()
-    s.add_text("this is a story about ziwei and his Agar.io :D\nHe is rlly gud at dat game. philipp has acheived nirvana. steven still has to deal with fb's bs. LOL That's some unicode for  you.")
-    p = Profile()
-    p.add_text("Today in period 7, our software development class, we finished the SCAP algorithm and are now waiting for Philipp to finish making the skeleton. Steven has been working arduosly on the frontend javascript. He is currently making a loading screen. Ziwei is reading a book")
-    og = Profile()
-    og.add_text("watsup homedog ziwei, how you doin. Philipp has achieved nirvana and is now doing stuff for a teacher. wut a good guy. steven is still working with fb. i hve nothign to do D: LOL")
-    text = og.analyze_text()
-    #print text
-    print sort_text(text)
-    #print find_distance(text,text)
-    #print find_distance(s.analyze_text(),text)
-    #print find_distance(p.analyze_text(),text)
-    
+def find_union(p1, p2):
+    # Finds the union of two dictionaries
+    # Returns a dictionary
+    d = p1.copy()
+    d.update(p2)
+    return d
+
+def find_distance(p1,p2):
+    # Finds the distance between to dictionaries
+    # Returns a magnitude. The higher the magnitude, the more similar
+    tup = [x*x for x in find_intersection(p1,p2).values()]
+    tup = sum(tup)
+    tup = tup/(1.0*max([len(p1.keys()),len(p2.keys())]))
+    return tup
+
+def find_percent(p1,p2):
+    # Finds the percentage similarity
+    # |(p1 ^ p2)| / |(p1 U p2)|
+    u = find_union(p1,p2)
+    return find_distance(p1,p2)/find_distance(u,u)
+
+def find_all_percents(p1, p2):
+    # Finds all the percent similarites between lists of ngrams
+    return [find_percent(x[0],x[1]) for x in zip(p1,p2)]
+
+def find_dumb_score(l):
+    # "Mathematically and Scientifically" figures out how to compare the percents
+    # Deserves a Turing Award
+    # 6-grams are worth more than 2-grams
+    return sum([l[0]*2,l[1]*3,l[2]*4,l[3]*5,l[4]*6])
+
+def compare_profiles_scap(p1, p2):
+    return find_dumb_score(find_all_percents(p1.get_ngram_counters(), p2.get_ngram_counters()))

@@ -13,8 +13,10 @@
     <center>
       <div id="content">
 	<h1>Authorensics Results</h1>
+	{% for p in anon_list %}
 	{% for key, value in p.iteritems() %}
 	<h3 id={{ key }}>{{ key }}: {{ value }}%</h3>
+	{% endfor %}
 	{% endfor %}
       </div>
     </center>

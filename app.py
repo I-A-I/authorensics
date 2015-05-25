@@ -43,7 +43,7 @@ def index():
         anon_profiles = {name : Profile(texts) for name, texts in t.iteritems()}
         anon_list = []
         for name, anon_profile in anon_profiles.iteritems():
-            anon_result = {name : scap.compare_profiles_scap(anon_profile, profile) for name, profile in person_profiles.iteritems()}
+            anon_result = {name : compare_profiles_scap(anon_profile, profile) for name, profile in person_profiles.iteritems()}
             anon_list.append(anon_result)
 
         return render_template("results.html", anon_list = anon_list)

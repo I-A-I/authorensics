@@ -22,7 +22,7 @@ class Profile:
 
     # Return array of arrays
     def get_ngram_counters(self):
-        self.ngrams = [list(a[0]) for a in zip(*map(lambda x : find_uni_ngrams(x), self.texts))]
+        self.ngrams = [list(a[0]) for a in zip(*map(lambda x : scap.find_uni_ngrams(x), self.texts))]
         self.ngram_counters = map(lambda x : dict(Counter(x)), self.ngrams)
         return self.ngram_counters
 

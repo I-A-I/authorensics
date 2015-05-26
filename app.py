@@ -10,26 +10,26 @@ def index():
     if request.method=="GET":
         return render_template("index.html")
     else:
-        print request.form["algorithm"]
-        a = []
+        anon = []
         i = 1
-        t = {}
+        comparison = {}
         try:
             while(1):
-                a.append(request.form["a" + str(i)])
+                anon.append(request.form["a" + str(i)])
                 i = i + 1
         except:
             pass
         i = 1
         try:
             while(1):
-                t[request.form["n" + str(i)]] = request.form[str(i)]
+                comparison[request.form["n" + str(i)]] = request.form[str(i)]
                 i = i + 1
         except:
             pass
+
         person_profiles = {}
         split_regex = re.compile("(?:(.+): (.+))")
-        for chats in a:
+        for chats in anon:
             temp = chats.split("\r\n")
             for sentence in temp:
                 match = re.match(split_regex, sentence)
@@ -41,7 +41,9 @@ def index():
                     else:
                         person_profiles[chatlog_name] = Profile(chatlog_text)
 
-        anon_profiles = {name : Profile(texts) for name, texts in t.iteritems()}
+        anon_profiles = {name : Profile(texts) for name, texts in comparison.iteritems()}
+        print person_profiles
+        print anon_profiles
         anon_list = []
         for name, anon_profile in anon_profiles.iteritems():
             anon_result = {name : compare_profiles_scap(anon_profile, profile) for name, profile in person_profiles.iteritems()}

@@ -35,11 +35,11 @@ for (var i = 0; i < results[0].length;i++) {
         
         if (pmax >= confidence_threshold) {
             if (max.length == 1)
-                message = "The closest match was " + max[0] + " with a similarity percentage of " + pmax + "%"
+                message = "The closest match was " + max[0] + " with a similarity percentage of " + pmax + "%."
 
             else {
                 var result_names = max.join(" and ");
-                message = "The results were tied at " + pmax + "% between " + results_names;
+                message = "The results were tied at " + pmax + "% between " + results_names + ".";
             }
         }
 	content.insert("h2")

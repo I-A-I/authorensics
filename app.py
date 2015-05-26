@@ -56,7 +56,7 @@ def index():
                          candidate_profiles[chat_name] = Profile(chat_text)
 
     results = []
-    for candidate_profile in candidate_profiles:
+    for candidate_name, candidate_profile in candidate_profiles.iteritems():
         result = compare_profiles_scap(anon_profile, candidate_profile)
         results.append(result)
 

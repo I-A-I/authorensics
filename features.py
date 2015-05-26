@@ -9,7 +9,11 @@ PUNCTUATIONS = "!:\-,;.!?~"
 punctuation_regex = re.compile("(?:([\w]+)([" + PUNCTUATIONS + "]+)\s?)")
 
 #Based on the spell checker by Peter Norvig//////////////////////////////////////////////////
-NWORDS = codecs.open('/usr/share/dict/american-english', "r", "utf-8").read().split()
+try:
+    NWORDS = codecs.open('/usr/share/dict/american-english', "r", "utf-8").read().split()
+except:
+    NWORDS = codecs.open('/usr/share/dict/words', "r", "utf-8").read().split()
+
 
 def edits(word):
    splits     = [(word[:i], word[i:]) for i in range(len(word) + 1)]

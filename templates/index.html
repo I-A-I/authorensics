@@ -1,3 +1,4 @@
+<! DOCTYPE html>
 <html>
   <head>
     <style>
@@ -21,6 +22,16 @@
 	<h1>Authorensics</h1>
 	<form class="pure-form" method="POST">
 	  <fieldset>
+          <h3>Which algorithm?</h3>
+          <label>
+              <input type="radio" name="algorithm" value="scap" checked>
+              Source Code Authorship Profile (SCAP)
+          </label>
+          <br>
+          <label>
+              <input type="radio" name="algorithm" value="vea">
+              Visualizable Evidence-Driven Approach (VEA)
+          </label>
 	    <h3>How do you want to obtain the anonymous text?</h3>
 	    <button type="button" class="pure-button pure-button-primary" id="chat">Use Facebook Chat</button>
 	    <button type="button" class="pure-button pure-button-primary" id="type">Use Type/Paste</button>

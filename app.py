@@ -10,6 +10,7 @@ def index():
     if request.method=="GET":
         return render_template("index.html")
     else:
+        print request.form["algorithm"]
         a = []
         i = 1
         t = {}

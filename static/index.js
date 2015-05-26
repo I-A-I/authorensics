@@ -1,9 +1,14 @@
-console.log("HELLO");
-
 var comp = d3.select("#comp");
 var a = d3.select("#a");
 var s = "";
 var user_data;
+
+d3.select("#submit")
+    .on("click", function() {
+        var is_disabled = $(this).hasClass("pure-button-disabled");
+        if (is_disabled)
+            d3.event.preventDefault();
+    } );
 
 //Choose between using FB chat and user input
 var chat = d3.select("#chat")
@@ -41,6 +46,7 @@ var type = d3.select("#type")
 var countc = 1; // Keeps count of how many textareas you have added
 d3.select("#addc")
     .on("click", function() {
+        $("#submit").removeClass("pure-button-disabled");
 	countc++;
 	comp.append("br")	
 	comp.append("textarea")
@@ -68,7 +74,7 @@ d3.select("#addc")
 	    .style("width", "189px")
 	    .transition()
 	    .delay(1000)
-	    .attr("value", "Name");
+	    .attr("placeholder", "Name");
     });
 
 //FB API Stuff
@@ -228,6 +234,7 @@ function getChats(chats) {
 
 		//Orders the chat properly, then sets up the textbox
 		var setUp = function() {
+            $("#submit").removeClass("pure-button-disabled");
 		    next.pop();
 		    next = next.reverse();
 		    prev.pop();
@@ -237,28 +244,28 @@ function getChats(chats) {
 		    //console.log(next);
 		    //console.log(prev);
 		    for (var h = 0;h < next.length;h++) {
-			for (var k = 0;k < next[h].length;k++) {
-			    if (next[h][k]["from"] == undefined) { //Sometimes the "from" is missing? Stupid FB API
-				//s = s + next[h][k]["message"] + "\n";
-				null;
-			    } else {
-				if (next[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
-				    s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
-				}
-			    }
-			}
+                for (var k = 0;k < next[h].length;k++) {
+                    if (next[h][k]["from"] == undefined) { //Sometimes the "from" is missing? Stupid FB API
+                        null;
+                    } else {
+                        if (next[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
+                            s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
+                        }
+                    }
+                }
 		    }
-		    for (var h = 0;h < prev.length;h++) {
-			for (var k = 0;k < prev[h].length;k++) {
-			    if (prev[h][k]["from"] == undefined) {
-				//s = s + prev[h][k]["message"] + "\n";
-				null;
-			    } else {
-				if (prev[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
-				    s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
-				}
-			    }
-			}
+		    for (var h = 0; h < prev.length;h++) {
+                for (var k = 0; k < prev[h].length;k++) {
+                    if (prev[h][k]["from"] == undefined) {
+                        //s = s + prev[h][k]["message"] + "\n";
+                        null;
+                    } else {
+                        if (prev[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
+                            s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+                        }
+                    }
+                }
+
 			if (h == prev.length - 1) {	    
 			    d3.select("#list")
 				.remove();
@@ -266,11 +273,9 @@ function getChats(chats) {
 				.remove();
 			    d3.select("#content")
 				.style("display", "inline");
-			    
-			    counta++;
-			    a.append("br")
-			    a.append("textarea")
-	    			.attr("name", "a" + counta)
+			    comp.append("br")
+			    comp.append("textarea")
+                .attr("name", countc)
 				.style("width", "0px")
 				.style("height", "0px") 
 				.style("margin-bottom", "20px")
@@ -281,6 +286,7 @@ function getChats(chats) {
 				.transition()
 				.delay(750)
 				.text(s);
+                console.log(s);
 			}
 		    }
 		}

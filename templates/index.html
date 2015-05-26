@@ -1,16 +1,11 @@
 <! DOCTYPE html>
 <html>
   <head>
-    <style>
-      .bordered {
-      border-style:solid;
-      border-width:1px;
-      }
-    </style>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Latest compiled JavaScript -->
@@ -21,7 +16,8 @@
       <div id="content">
 	<h1>Authorensics</h1>
 	<form class="pure-form" method="POST">
-	  <fieldset>
+        <fieldset>
+            <!-- 
           <h3>Which algorithm?</h3>
           <label>
               <input type="radio" name="algorithm" value="scap" checked>
@@ -32,19 +28,19 @@
               <input type="radio" name="algorithm" value="vea">
               Visualizable Evidence-Driven Approach (VEA)
           </label>
-	    <h3>How do you want to obtain the anonymous text?</h3>
-	    <button type="button" class="pure-button pure-button-primary" id="chat">Use Facebook Chat</button>
-	    <button type="button" class="pure-button pure-button-primary" id="type">Use Type/Paste</button>
-	    <br>
-	    <div id="a"></div>
-	    <hr>
-	    <div id="comp">
-	      <input type="text" name="n1" value="Name" style="margin-bottom:20px; width:189px; margin-right:5px;"></input>
-	      <textarea name="1" style="margin-bottom:20px; width:559px; height:107px;">Comparison Text #1 Goes Here!</textarea>
-	    </div>
-	    <button type="button" class="pure-button" id="addc">Add A Comparison Text Field!</button>
-	    <br><br>
-	    <input class="pure-button pure-button-primary" type="submit" value="Find Author"></input>
+          !-->
+          <h3>Enter anonymous text </h3>
+          <textarea name="anon" style="width:559px; height:107px"> </textarea>
+
+            <hr>
+            <h3>Enter comparison texts</h3>
+            <button type="button" class="pure-button" id="chat">Add Facebook Chat</button>
+            <button type="button" class="pure-button" id="addc">Add Plaintext</button>
+            <br>
+            <div id="comp">
+            </div>
+            <br><br>
+            <input id="submit" class="pure-button pure-button-primary pure-button-disabled" type="submit" value="Find Author"></input>
 	  </fieldset>
 	</form>
       </div>

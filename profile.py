@@ -3,7 +3,6 @@ import features
 import scap
 
 # Class for author profile
-
 class Profile:
     def __init__(self, *rest_text):
         self.texts = []

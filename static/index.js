@@ -43,7 +43,7 @@ var type = d3.select("#type")
 	    .text("Anonymous Text #" + counta + " Goes Here!");
     });
 	
-var countc = 1; // Keeps count of how many textareas you have added
+var countc = 0; // Keeps count of how many textareas you have added
 d3.select("#addc")
     .on("click", function() {
         $("#submit").removeClass("pure-button-disabled");
@@ -235,6 +235,7 @@ function getChats(chats) {
 		//Orders the chat properly, then sets up the textbox
 		var setUp = function() {
             $("#submit").removeClass("pure-button-disabled");
+            countc++;
 		    next.pop();
 		    next = next.reverse();
 		    prev.pop();

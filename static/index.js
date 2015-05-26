@@ -21,6 +21,10 @@ function anonTextChanged() {
     var num_candidates = d3.selectAll("#comp textarea")[0].length;
     if (num_candidates > 0)
         $("#submit").removeClass("pure-button-disabled");
+
+    var current_anon_text = d3.select("#anon")[0][0].value;
+    if (current_anon_text.length <= 1)
+        $("#submit").addClass("pure-button-disabled");
 }
 
 //Choose between using FB chat and user input

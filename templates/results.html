@@ -1,18 +1,19 @@
 <html>
   <head>
-    <style>
-      .bordered {
-      border-style:solid;
-      border-width:1px;
-      }
-    </style>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   </head>
   <body>
     <center>
       <div id="content">
-	<h1>Authorensics Results</h1>
+          <h1><a href="/">Authorensics</a></h1>
 	{% for name, similarity in results.iteritems() %}
         <h3 id={{ name}}>{{ name }}: {{ similarity}}%</h3>
 	{% endfor %}

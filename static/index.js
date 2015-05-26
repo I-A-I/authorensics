@@ -10,6 +10,16 @@ d3.select("#submit")
             d3.event.preventDefault();
     } );
 
+d3.select("#anon")
+    .on("keyup", anonTextChanged)
+    .on("change", anonTextChanged);
+
+function anonTextChanged() {
+    var num_candidates = d3.selectAll("#comp textarea")[0].length;
+    if (num_candidates > 0)
+        $("#submit").removeClass("pure-button-disabled");
+}
+
 //Choose between using FB chat and user input
 var chat = d3.select("#chat")
     .on("click", function() {
@@ -46,7 +56,9 @@ var type = d3.select("#type")
 var countc = 0; // Keeps count of how many textareas you have added
 d3.select("#addc")
     .on("click", function() {
-        $("#submit").removeClass("pure-button-disabled");
+        var current_anon_text = d3.select("#anon")[0][0].value;
+        if (current_anon_text.length > 1)
+            $("#submit").removeClass("pure-button-disabled");
 	countc++;
 	comp.append("br")	
 	comp.append("textarea")
@@ -234,7 +246,9 @@ function getChats(chats) {
 
 		//Orders the chat properly, then sets up the textbox
 		var setUp = function() {
-            $("#submit").removeClass("pure-button-disabled");
+            var current_anon_text = d3.select("#anon")[0][0].value;
+            if (current_anon_text.length > 1)
+                $("#submit").removeClass("pure-button-disabled");
             countc++;
 		    next.pop();
 		    next = next.reverse();

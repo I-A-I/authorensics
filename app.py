@@ -9,56 +9,58 @@ app = Flask(__name__)
 def index():
     if request.method=="GET":
         return render_template("index.html")
-    else:
-        # Get anon text
-        anon_text = request.form["anon"]
 
-        # Get candidates 
-        candidates_raw = []
-        counter  = 1
-        while True:
-            if "n" + str(counter) in request.form.keys():
-                name = request.form["n" + str(counter)]
+    # Get anon text
+    anon_text = request.form["anon"]
+    anon_profile = Profile(anon_text)
+
+    # Get candidates 
+    candidates_raw = []
+    counter  = 1
+    while True:
+        if "n" + str(counter) in request.form.keys():
+            name = request.form["n" + str(counter)]
+        else:
+            name = False
+
+        if str(counter) in request.form.keys():
+            text = request.form[str(counter)]
+        else:
+            break
+
+        candidates_raw.append({"name":name, "text":text})
+        counter = counter + 1
+
+    candidate_profiles = {}
+    split_regex = re.compile("(?:(.+): (.+))")
+    for candidate in candidates_raw:
+        # Is plaintext, not FB chat
+        if candidate["name"]:
+            profile = Profile(candidate["text"])
+            if candidate["name"] in candidate_profiles:
+                candidate_profiles[candidate["name"]].add_text(candidate["text"])
             else:
-                name = False
+                candidate_profiles[candidate["name"]] = Profile(candidate["text"])
 
-            if str(counter) in request.form.keys():
-                text = request.form[str(counter)]
-            else:
-                break
+        # Is FB chat
+        else:
+            lines = candidate["text"].split("\r\n")
+            for line in lines:
+                 match = re.match(split_regex, line)
+                 if match:
+                     chat_name = match.group(1)
+                     chat_text = match.group(2)
+                     if chat_name in candidate_profiles:
+                         candidate_profiles[chat_name].add_text(chat_text)
+                     else:
+                         candidate_profiles[chat_name] = Profile(chat_text)
 
-            candidates_raw.append({"name":name, "text":text})
-            counter = counter + 1
+    results = []
+    for candidate_profile in candidate_profiles:
+        result = compare_profiles_scap(anon_profile, candidate_profile)
+        results.append(result)
 
-        candidate_profiles = {}
-        split_regex = re.compile("(?:(.+): (.+))")
-        for candidate in candidates_raw:
-            # Is plaintext, not FB chat
-            if candidate[name]:
-                profile = Profile(candidate[text])
-                if candidate[name] in candidate_profiles:
-                    candidate_profiles[candidate[name]].add_text(candidate[text])
-                else:
-                    candidate_profiles[candidate[name]] = Profile(candidate[text])
-
-            # Is FB chat
-            else:
-                lines = chats.split("\r\n")
-                for line in lines:
-                     match = re.match(split_regex, line)
-                     if match:
-                         chat_name = match.group(1)
-                         chat_text = match.group(2)
-                         if chat_name in candidate_profiles:
-                             candidate_profiles[chat_name].add_text(chat_text)
-                         else:
-                             candidate_profiles[chat_name] = Profile(chat_text)
-
-        # for name, anon_profile in anon_profiles.iteritems():
-        #     anon_result = {name : compare_profiles_scap(anon_profile, profile) for name, profile in person_profiles.iteritems()}
-        #     anon_list.append(anon_result)
-
-        # return render_template("results.html", anon_list = anon_list)
+    return render_template("results.html", results)
 
 if __name__=="__main__":
     app.debug=True

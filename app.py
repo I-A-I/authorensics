@@ -32,7 +32,7 @@ def index():
         counter = counter + 1
 
     candidate_profiles = {}
-    split_regex = re.compile("(?:(.+): (.+))")
+    split_regex = re.compile("(?:([^:]+): (.+))")
     for candidate in candidates_raw:
         # Is plaintext, not FB chat
         if candidate["name"]:

@@ -43,6 +43,9 @@ def find_union(p1, p2):
     return d
 
 def find_distance(p1,p2):
+    # Prevent division by zero
+    if len(p1.keys()) == 0 or len(p2.keys()) == 0:
+        return 0
     # Finds the distance between to dictionaries
     # Returns a magnitude. The higher the magnitude, the more similar
     tup = [x*x for x in find_intersection(p1,p2).values()]
@@ -54,7 +57,9 @@ def find_percent(p1,p2):
     # Finds the percentage similarity
     # |(p1 ^ p2)| / |(p1 U p2)|
     u = find_union(p1,p2)
-    return find_distance(p1,p2)/find_distance(u,u)
+    if len(u.keys()) == 0:
+        return 0
+    return find_distance(p1,p2) / find_distance(u,u)
 
 def find_all_percents(p1, p2):
     # Finds all the percent similarites between lists of ngrams

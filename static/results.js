@@ -8,7 +8,7 @@ var max = "";
 var pmax = 0;
 var percents = {};
 
-for (var i = 0;i < a[0].length;i++) {
+for (var i = 0; i < a[0].length;i++) {
     t = a[0][i];
     p = parseInt(t.innerHTML[t.innerHTML.search(": ") + 2] + t.innerHTML[t.innerHTML.search(": ") + 3]);
     percents[t.id] = p;

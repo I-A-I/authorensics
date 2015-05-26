@@ -55,12 +55,13 @@ def index():
                      else:
                          candidate_profiles[chat_name] = Profile(chat_text)
 
-    results = []
+    results = {}
     for candidate_name, candidate_profile in candidate_profiles.iteritems():
         result = compare_profiles_scap(anon_profile, candidate_profile)
-        results.append(result)
+        results[candidate_name] = result
 
-    return render_template("results.html", results)
+    print results
+    return render_template("results.html", results=results)
 
 if __name__=="__main__":
     app.debug=True

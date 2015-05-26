@@ -3,6 +3,9 @@ var a = d3.select("#a");
 var s = "";
 var user_data;
 
+var ROW_COLOR_ONE = "rgb(160, 220, 250)";
+var ROW_COLOR_TWO = "white";
+
 d3.select("#submit")
     .on("click", function() {
         var is_disabled = $(this).hasClass("pure-button-disabled");
@@ -73,7 +76,7 @@ d3.select("#addc")
 	    .style("height", "107px")
 	    .transition()
 	    .delay(750)
-	    .text("Comparison Text #" + countc + " Goes Here!");
+        .attr("placeholder", "Paste candidate text");
 	comp.insert("input", "#c" + countc)
 	    .attr("name", "n" + countc)
 	    .style("margin-bottom", "20px")
@@ -86,7 +89,7 @@ d3.select("#addc")
 	    .style("width", "189px")
 	    .transition()
 	    .delay(1000)
-	    .attr("placeholder", "Name");
+	    .attr("placeholder", "Candidate Name");
     });
 
 //FB API Stuff
@@ -127,6 +130,7 @@ function getChats(chats) {
     d3.select("#list")
 	.append("table")
 	.attr("id", "t")
+    .attr("style", "border-color: rgb(200, 200, 200)")
 	.attr("border", "1px");
 
     //Populate the table with the people in your chats
@@ -141,20 +145,20 @@ function getChats(chats) {
 	d3.select("#t")
 	    .append("tr")
 	//Pretty stuff below
-	    .attr("bgcolor", function() {
+	    .attr("style", function() {
 		if (i % 2 == 0) {
-		    return "#87CEFA";
+		    return "background-color: " + ROW_COLOR_ONE;
 		} else {
-		    return "#FFFFFF";
+		    return "background-color: " + ROW_COLOR_TWO;
 		}
 	    })
 	    .on("mouseover", function() {
-		var origcolor = this.getAttribute("bgcolor");
+		var origcolor = this.style.backgroundColor;
 		d3.select(this)
-		    .attr("bgcolor", "#FAFAD2")
+		    .attr("style", "background-color: rgb(190, 250, 255)")
 		    .on("mouseout", function() {
 			d3.select(this)
-			    .attr("bgcolor", origcolor);
+                .attr("style", "background-color: " + origcolor)
 		    });
 	    })
 	    .append("td")

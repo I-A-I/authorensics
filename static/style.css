@@ -19,3 +19,7 @@ h1 a:hover {
 table#t {
     cursor: pointer;
 }
+
+table#t td {
+    padding: 5px 5px 0 5px;
+}

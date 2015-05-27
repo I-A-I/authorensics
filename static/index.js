@@ -254,10 +254,11 @@ function getChats(chats) {
 
 		//Orders the chat properly, then sets up the textbox
 		var setUp = function() {
-            var current_anon_text = d3.select("#anon")[0][0].value;
-            if (current_anon_text.length > 1)
-                $("#submit").removeClass("pure-button-disabled");
-            countc++;
+		    var current_anon_text = d3.select("#anon")[0][0].value;
+		    if (current_anon_text.length > 1) {
+			$("#submit").removeClass("pure-button-disabled");
+		    }
+		    countc++;
 		    next.pop();
 		    next = next.reverse();
 		    prev.pop();
@@ -267,27 +268,27 @@ function getChats(chats) {
 		    //console.log(next);
 		    //console.log(prev);
 		    for (var h = 0;h < next.length;h++) {
-                for (var k = 0;k < next[h].length;k++) {
-                    if (next[h][k]["from"] == undefined) { //Sometimes the "from" is missing? Stupid FB API
-                        null;
-                    } else {
-                        if (next[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
-                            s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
-                        }
-                    }
-                }
+			for (var k = 0;k < next[h].length;k++) {
+			    if (next[h][k]["from"] == undefined) { //Sometimes the "from" is missing? Stupid FB API
+				null;
+			    } else {
+				if (next[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
+				    s = s + next[h][k]["from"]["name"] + ": " + next[h][k]["message"] + "\n";
+				}
+			    }
+			}
 		    }
 		    for (var h = 0; h < prev.length;h++) {
-                for (var k = 0; k < prev[h].length;k++) {
-                    if (prev[h][k]["from"] == undefined) {
-                        //s = s + prev[h][k]["message"] + "\n";
-                        null;
-                    } else {
-                        if (prev[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
-                            s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
-                        }
-                    }
-                }
+			for (var k = 0; k < prev[h].length;k++) {
+			    if (prev[h][k]["from"] == undefined) {
+				//s = s + prev[h][k]["message"] + "\n";
+				null;
+			    } else {
+				if (prev[h][k]["from"]["name"] != user_data["first_name"] + " " + user_data["last_name"]) {
+				    s = s + prev[h][k]["from"]["name"] + ": " + prev[h][k]["message"] + "\n";
+				}
+			    }
+			}
 
 			if (h == prev.length - 1) {	    
 			    d3.select("#list")
@@ -298,7 +299,7 @@ function getChats(chats) {
 				.style("display", "inline");
 			    comp.append("br")
 			    comp.append("textarea")
-                .attr("name", countc)
+				.attr("name", countc)
 				.style("width", "0px")
 				.style("height", "0px") 
 				.style("margin-bottom", "20px")
@@ -309,7 +310,7 @@ function getChats(chats) {
 				.transition()
 				.delay(750)
 				.text(s);
-                console.log(s);
+			    console.log(s);
 			}
 		    }
 		}

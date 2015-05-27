@@ -76,6 +76,7 @@ def find_dumb_score(l):
     return sum([l[0]*2,l[1]*3,l[2]*4,l[3]*5,l[4]*6])
 
 def compare_profiles_scap(p1, p2):
-    result = find_dumb_score(find_all_percents(p1.get_ngram_counters(), p2.get_ngram_counters()))
-    result = format_number(result)
-    return result
+    return find_all_percents(p1.get_ngram_counters(), p2.get_ngram_counters())
+    #result = find_dumb_score(find_all_percents(p1.get_ngram_counters(), p2.get_ngram_counters()))
+    #result = format_number(result)
+    #return result

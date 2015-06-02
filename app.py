@@ -1,5 +1,6 @@
 from flask import Flask,render_template,request
-from scap import compare_profiles_scap
+import scap
+import vea
 from profile import Profile
 import re
 
@@ -57,10 +58,10 @@ def index():
                      else:
                          candidate_profiles[chat_name] = Profile(chat_text)
 
-    results = {}
-    for candidate_name, candidate_profile in candidate_profiles.iteritems():
-        result = compare_profiles_scap(anon_profile, candidate_profile)
-        results[candidate_name] = result
+    if algorithm == "scap":
+        results = scap.analyze(anon_profile, candidate_profiles)
+    elif algorithm == "vea":
+        results = vea.analyze(anon_profile, candidate_profiles)
 
     return render_template("results.html", results=results)
 

@@ -4,6 +4,7 @@ from collections import Counter
 class Profile:
     def __init__(self, *rest_text):
         self.texts = []
+        self.single_text = ""
         if rest_text:
             apply(self.add_texts, rest_text)
 
@@ -11,12 +12,7 @@ class Profile:
     def add_text(self, new_text):
         # self.texts.append(unicode(new_text,'utf-8'))
         self.texts.append(new_text)
-
-    # For every n-gram between N_GRAM_MIN and N_GRAM_MAX:
-        # ... Count n-grams
-        # ... Sort descendingly
-        # ... Discard frequency to save memory (?)
-
+        self.single_text += "\n" + new_text
 
     # Add multiple textsshell    
     def add_texts(self, *new_texts):

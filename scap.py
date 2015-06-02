@@ -102,3 +102,12 @@ def compare_profiles_scap(p1, p2):
     #result = find_dumb_score(find_all_percents(p1.get_ngram_counters(), p2.get_ngram_counters()))
     #result = format_number(result)
     #return result
+
+
+def analyze(anon_profile, candidate_profiles):
+    results = {}
+    for candidate_name, candidate_profile in candidate_profiles.iteritems():
+        result = compare_profiles_scap(anon_profile, candidate_profile)
+        results[candidate_name] = result
+
+    return results

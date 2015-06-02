@@ -3,6 +3,10 @@
     border-width:1px;
 }
 
+label {
+    font-weight: normal;
+}
+
 h3 {
     margin-bottom: 20px;
 }

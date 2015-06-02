@@ -104,7 +104,7 @@ def construct_event(features, modality, num_authors):
     return event
 
 # ALGORITHM 1
-def create_events():
+def create_events(candidate_profiles, anon_profile):
     num_authors = len(candidate_profiles)
 
     word_features = extract_word_features(anon_profile)
@@ -176,6 +176,6 @@ def score_events(events, anon_profile, candidates):
             scores[index] = dot_product
 
 def analyze(anon_profile, candidate_profiles):
-    events = create_events()
+    events = create_events(candidate_profiles, anon_profile)
     candidates = extract_candidate_features(candidate_profiles, events)
     events = score_events(events, anon_profile, candidates)

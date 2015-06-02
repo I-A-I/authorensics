@@ -10,6 +10,8 @@ def index():
     if request.method=="GET":
         return render_template("index.html")
 
+    algorithm = request.form["algorithm"]
+
     # Get anon text
     anon_text = request.form["anon"]
     anon_profile = Profile(anon_text)
@@ -60,7 +62,6 @@ def index():
         result = compare_profiles_scap(anon_profile, candidate_profile)
         results[candidate_name] = result
 
-    print results
     return render_template("results.html", results=results)
 
 if __name__=="__main__":

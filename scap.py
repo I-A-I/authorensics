@@ -1,5 +1,6 @@
 from collections import Counter
 import math
+import features
 
 # This is the Source Code Authorship Profile (SCAP) method
 # Based primarily on "Identifying Authorship by Byte-Level N-Grams:The Source Code Author Profile (SCAP) Method"
@@ -62,6 +63,21 @@ def find_percent(p1,p2):
         return 0
     return find_distance(p1,p2) / find_distance(u,u)
 
+def parseParser(profile):
+  def get_if_error(x):
+     profile.spelling_errors.append(x)
+     return features.correct(x)
+  profile.tokens = sum(map(lambda x : features.split_punctuations(x.split()), profile.fragments))
+  profile.spelling_errors = []
+  profile.emoticons = []
+  profile.words = []
+  map(lambda x : profile.emoticons.append(x) if features.is_emoticon(x) else profile.words.append(x), profile.tokens)
+  profile.words = map(lambda x : get_if_error(x) if x in correct(x) else x, profile.words)
+  profile.spelling_count = dict(Counter(profile.spelling_errors))
+  profile.word_count = dict(Counter(profile.words))
+  profile.emoticon_count = dict(Counter(profile.emoticons))
+  return [profile.word_count, profile.emoticon_count, profile.spelling_count]
+
 def find_all_percents(p1, p2):
     # Finds all the percent similarites between lists of ngrams
     return [find_percent(x[0],x[1]) for x in zip(p1,p2)]
@@ -75,8 +91,14 @@ def find_dumb_score(l):
     # 6-grams are worth more than 2-grams
     return sum([l[0]*2,l[1]*3,l[2]*4,l[3]*5,l[4]*6])
 
+def get_ngram_counters(profile):
+    profile.ngrams = [list(a[0]) for a in zip(*map(lambda x : find_uni_ngrams(x), profile.texts))]
+    profile.ngram_counters = map(lambda x : dict(Counter(x)), profile.ngrams)
+    return profile.ngram_counters
+
+
 def compare_profiles_scap(p1, p2):
-    return find_all_percents(p1.get_ngram_counters(), p2.get_ngram_counters())
+    return find_all_percents(get_ngram_counters(p1), get_ngram_counters(p2))
     #result = find_dumb_score(find_all_percents(p1.get_ngram_counters(), p2.get_ngram_counters()))
     #result = format_number(result)
     #return result

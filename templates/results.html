@@ -9,6 +9,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Latest compiled JavaScript -->
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
   </head>
   <body>
     <center>
@@ -17,6 +20,8 @@
 	{% for name, similarity in results.iteritems() %}
         <h3 id={{ name}}>{{ name }}: {{ similarity}}%</h3>
 	{% endfor %}
+      </div>
+      <div id="barchart">
       </div>
     </center>
     <script src="static/results.js"></script>

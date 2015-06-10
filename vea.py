@@ -85,6 +85,13 @@ class VEAProfile(Profile):
 
         return max_frequency
 
+    # Used by algorithm #3
+    # We're doing a 10-fold cross-validation test
+    # If fold_number = 0, return first 10% of samples
+    # as testing, last 90% of samples as training
+    def generate_fold_samples(fold_number):
+        pass
+
 
 def extract_word_features(anon_profile):
     pass
@@ -173,9 +180,43 @@ def score_events(events, anon_profile, candidates):
                 candidate_scores.append(score)
 
             dot_product = sum(map(operator.mul, anon_scores, candidate_scores))
-            scores[index] = dot_product
+            event.scores[index] = dot_product
+
+# Needed for Algorithm 3
+def generate_fold_groups(fold_number, candidates):
+    testing_group, training_group = [], []
+    for candidate in candidates:
+        testing_sample, training_sample = candidate.generate_fold_samples(fold_number)
+        # create two new profiles
+        # add to groups
+
+    return testing_group, training_group
+
+# ALGORITHM 3
+'''
+For each event...
+    Divide each candidate's samples into 10 groups
+    Collate these 10 groups of every author into 10 supergroups, each containing each writer
+    For every supergroup...
+        testing_group = supergroup
+        training_group = all supergroups except this one
+        For every author_sample in testing_group:
+            anon_profile = author_sample
+            candidate_profiles = samples from training_group
+            run algos #1 and #2 on them
+            keep track of whether predicted author is actual author
+            collect sample
+        collect samples
+    build linear model from samples
+    using samples of real event, predict confidence
+'''
+def estimate_confidence(events, anon_profile, candidates):
+    for event in events:
+        for fold_number in range(10):
+            testing_group, training_group = generate_fold_groups(fold_number, candidates)
 
 def analyze(anon_profile, candidate_profiles):
     events = create_events(candidate_profiles, anon_profile)
     candidates = extract_candidate_features(candidate_profiles, events)
-    events = score_events(events, anon_profile, candidates)
+    score_events(events, anon_profile, candidates)
+    estimate_confidence(events, anon_profile, candidates)

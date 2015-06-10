@@ -31,10 +31,11 @@ for (var i = 0; i < results[0].length;i++) {
 	slist = slist + result.innerHTML[j];
     }
     slist = slist.split(", ");
-    console.log(slist);
+    //console.log(slist);
     for (var j = 0;j < slist.length;j++) {
     	slist[j] = parseFloat(slist[j]);
     }
+    console.log(slist);
     /*
     bars1.push({"name":result.id, "y":parseInt(slist[0] * 100)});
     bars2.push({"name":result.id, "y":parseInt(slist[1] * 100)});
@@ -55,11 +56,11 @@ for (var i = 0; i < results[0].length;i++) {
     similarity = (slist[0] * 2 + slist[1] * 3 + slist[2] * 4 + slist[3] * 5 + slist[4] * 6) / (2 + 3 + 4 + 5 + 6);
     
     percents[result.id] = similarity;
-    if (similarity == pmax) {
+    if (parseInt(similarity * 100) == pmax) {
         max.push(result.id);
     }
 
-    if (similarity > pmax) {
+    if (parseInt(similarity * 100) > pmax) {
         pmax = parseInt(similarity * 100);
         max = [result.id];
     }
@@ -75,6 +76,9 @@ for (var i = 0; i < results[0].length;i++) {
 
     if (i == results[0].length - 1) {
         var message;
+	console.log(slist);
+	console.log(max);
+	console.log(pmax);
         if (pmax == 0)
             message = "None of the candidates had any similarity to the anonymous text."
 
@@ -96,8 +100,8 @@ for (var i = 0; i < results[0].length;i++) {
 
 }
 
-console.log(bardata);
-console.log(barlabel);
+//console.log(bardata);
+//console.log(barlabel);
 
 Morris.Bar({
     element: "barchart",

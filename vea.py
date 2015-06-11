@@ -1,6 +1,8 @@
 from profile import Profile
 from math import log10
+from math import floor
 import operator
+import copy
 
 # This is the Visualizable Evidence-Driven Approach (VEA) method
 
@@ -90,7 +92,35 @@ class VEAProfile(Profile):
     # If fold_number = 0, return first 10% of samples
     # as testing, last 90% of samples as training
     def generate_fold_samples(fold_number):
-        pass
+        # If number of texts is divisible by 10, things are easy
+        # We don't need to break up any samples
+        if len(self.texts) % 10 == 0:
+            test_group_len = len(self.texts) / 10
+            test_group_min = fold_number * test_group_len
+            test_group_max = fold_number * test_group_len + test_group_len
+
+            test_group = self.texts[test_group_min:test_group_max]
+            training_group = self.texts[0:test_group_min] + self.texts[test_group_max:]
+
+        # If number of texts is NOT divisible by 10, add all the samples together
+        # And divide them into 10 slices
+        else:
+            # First, find length of one slice
+            num_chars = len(self.single_text)
+            if num_chars % 10 == 0:
+                slice_len = num_chars / 10
+            else:
+                # In this case, the last slice will be slightly longer than the other slices
+                slice_len = int(floor(num_chars / 10.)
+
+            # Now generate indices of groups
+            test_group_min = fold_number * slice_len
+            test_group_max = fold_number * slice_len + slice_len
+            
+            test_group = self.single_text[test_group_min:test_group_max]
+            training_group = self.single_text[0:test_group_min] + self.single_text[test_group_max:]
+            
+        return test_group, training_group
 
 
 def extract_word_features(anon_profile):
@@ -183,12 +213,18 @@ def score_events(events, anon_profile, candidates):
             event.scores[index] = dot_product
 
 # Needed for Algorithm 3
+# Return testing group and training group (containing profiles)
+# Given the fold #
 def generate_fold_groups(fold_number, candidates):
     testing_group, training_group = [], []
     for candidate in candidates:
         testing_sample, training_sample = candidate.generate_fold_samples(fold_number)
-        # create two new profiles
-        # add to groups
+
+        testing_profile = Profile(testing_sample)
+        testing_group.append(testing_profile)
+
+        training_profile = Profile(training_sample)
+        training_group.append(training_profile)
 
     return testing_group, training_group
 
@@ -211,9 +247,20 @@ For each event...
     using samples of real event, predict confidence
 '''
 def estimate_confidence(events, anon_profile, candidates):
+    samples = []
     for event in events:
         for fold_number in range(10):
+            correct_guess = 0
+            fold_samples = []
             testing_group, training_group = generate_fold_groups(fold_number, candidates)
+            # lines 6-16
+            for test_doc in testing_group:
+                candidates_temp = copy.copy(training_group)
+                events = create_events(candidates_temp, test_doc)
+                candidates = extract_candidate_features(candidates_temp, events)
+                score_events(events, test_doc, candidates)
+                # CHECK WHETHER AUTHOR IS CORRECT
+                
 
 def analyze(anon_profile, candidate_profiles):
     events = create_events(candidate_profiles, anon_profile)

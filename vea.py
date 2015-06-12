@@ -1,3 +1,13 @@
+'''
+TO-DO
+1. Write generate_sample
+2. Get linear model working
+3. Implement feature extraction
+4. Implement algos #4, 5
+5. Visualization?
+'''
+
+
 from profile import Profile
 from math import log10
 from math import floor
@@ -111,7 +121,7 @@ class VEAProfile(Profile):
                 slice_len = num_chars / 10
             else:
                 # In this case, the last slice will be slightly longer than the other slices
-                slice_len = int(floor(num_chars / 10.)
+                slice_len = int(floor(num_chars / 10.))
 
             # Now generate indices of groups
             test_group_min = fold_number * slice_len
@@ -141,19 +151,33 @@ def construct_event(features, modality, num_authors):
     return event
 
 # ALGORITHM 1
+def create_event(candidate_profiles, anon_profile, modality):
+    num_authors = len(candidate_profiles)
+    if modality == "word":
+        word_features = extract_word_features(anon_profile)
+        word_event = construct_event(word_features, "word", num_authors)
+        return word_event
+
+    if modality == "character":
+        character_features = extract_character_features(anon_profile)
+        character_event = construct_event(character_features, "character", num_authors)
+        return character_event
+
+    if modality == "pos":
+        pos_features = extract_pos_features(anon_profile)
+        pos_event = construct_event(pos_features, "pos", num_authors)
+        return pos_event
+
+
 def create_events(candidate_profiles, anon_profile):
     num_authors = len(candidate_profiles)
-
-    word_features = extract_word_features(anon_profile)
-    word_event = construct_event(word_features, "word", num_authors)
-
-    character_features = extract_character_features(anon_profile)
-    character_event = construct_event(character_features, "character", num_authors)
-
-    pos_features = extract_pos_features(anon_profile)
-    pos_event = construct_event(pos_features, "pos", num_authors)
-
-    return (word_features, character_features, pos_features)
+    events = []
+    modalities = ("word", "character", "pos")
+    for modality in modalities:
+        new_event = create_event(candidate_profiles, anon_profile, modality)
+        events.append(new_event)
+    
+    return events
 
 
 def tf(feature, candidate):
@@ -191,26 +215,30 @@ def extract_candidate_features(candidate_profiles):
     return candidates
 
 # ALGORITHM 2
+def score_event(event, anon_profile, candidates):
+    # Lines 2-5
+    # Score each feature based on TF for anon_profile
+    anon_scores = []
+    for eu in event.evidence_units:
+        feature_score = tf(eu.feature, anon_profile)
+        anon_scores.append(feature_score)
+
+    # Lines 6-13
+    # Score each feature based on TF-IDF for candidates
+    for index, candidate in enumerate(candidates):
+        candidate_scores = []
+        for eu_index, eu in enumerate(event.evidence_units):
+            score = tf(eu.feature, candidate) * eu.idf
+            eu.scores[index] = score * anon_scores[eu_scores]
+            candidate_scores.append(score)
+
+        dot_product = sum(map(operator.mul, anon_scores, candidate_scores))
+        event.scores[index] = dot_product
+
+
 def score_events(events, anon_profile, candidates):
     for event in events:
-        # Lines 2-5
-        # Score each feature based on TF for anon_profile
-        anon_scores = []
-        for eu in event.evidence_units:
-            feature_score = tf(eu.feature, anon_profile)
-            anon_scores.append(feature_score)
-
-        # Lines 6-13
-        # Score each feature based on TF-IDF for candidates
-        for index, candidate in enumerate(candidates):
-            candidate_scores = []
-            for eu_index, eu in enumerate(event.evidence_units):
-                score = tf(eu.feature, candidate) * eu.idf
-                eu.scores[index] = score * anon_scores[eu_scores]
-                candidate_scores.append(score)
-
-            dot_product = sum(map(operator.mul, anon_scores, candidate_scores))
-            event.scores[index] = dot_product
+        score_event(event, anon_profile, candidates)
 
 # Needed for Algorithm 3
 # Return testing group and training group (containing profiles)
@@ -246,6 +274,18 @@ For each event...
     build linear model from samples
     using samples of real event, predict confidence
 '''
+def author_is_correct(event, real_author_index):
+    # Find predicted author
+    predicted_author_index = -1
+    for index, score in enumerate(event.scores):
+        if predicted_author_index == -1 or score > event.scores[predicted_author_index]:
+            predicted_author_index = index
+
+    return predicted_author_index == real_author_index
+
+def generate_sample(event, profile):
+    pass
+
 def estimate_confidence(events, anon_profile, candidates):
     samples = []
     for event in events:
@@ -253,13 +293,30 @@ def estimate_confidence(events, anon_profile, candidates):
             correct_guess = 0
             fold_samples = []
             testing_group, training_group = generate_fold_groups(fold_number, candidates)
+
             # lines 6-16
-            for test_doc in testing_group:
+            for author_index, test_doc in enumerate(testing_group):
                 candidates_temp = copy.copy(training_group)
-                events = create_events(candidates_temp, test_doc)
-                candidates = extract_candidate_features(candidates_temp, events)
-                score_events(events, test_doc, candidates)
-                # CHECK WHETHER AUTHOR IS CORRECT
+                test_event = create_event(candidates_temp, test_doc, event.modality)
+                candidates = extract_candidate_features(candidates_temp, test_event)
+                score_event(test_event, test_doc, candidates)
+                if author_is_correct(test_event, author_index):
+                    correct_guess += 1
+
+                sample = generate_sample(test_event, test_doc)
+                fold_samples.append(sample)
+            
+            # lines 17-20
+            precision = correct_guess / len(testing_group)
+            for sample in fold_samples:
+                sample.append(precision)
+
+            # line 21
+            samples += fold_samples
+
+        model = build_model(samples)
+        estimated_confidence = model.predict(generate_sample(event, anon_profile))
+        return estimated_confidence
                 
 
 def analyze(anon_profile, candidate_profiles):

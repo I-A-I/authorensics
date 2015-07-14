@@ -1,6 +1,6 @@
 '''
 TO-DO
-1. Write generate_sample
+1. (DONE) Write generate_sample
 2. Get linear model working
 3. Implement feature extraction
 4. Implement algos #4, 5
@@ -61,19 +61,11 @@ class VEAProfile(Profile):
         self.single_text = profile.single_text
         self.texts = profile.texts
 
-        self.word_features = None
-        self.character_features = None
-        self.pos_features = None
+        self.features = None
 
     # Find matching feature
     def find_feature(self, feature):
-        features_of_modality = []
-        if feature.modality == "word":
-            features_of_modality = self.word_features
-        elif feature.modality == "character":
-            features_of_modality = self.character_features
-        elif feature.modality == "pos":
-            features_of_modality = self.pos_features
+        features_of_modality = features[modality]
 
         for self_feature in features_of_modality:
             if self_feature.content == feature.content:
@@ -82,13 +74,7 @@ class VEAProfile(Profile):
         return None
 
     def find_max_feature_frequency(modality):
-        features_of_modality = []
-        if modality == "word":
-            features_of_modality = self.word_features
-        elif modality == "character":
-            features_of_modality = self.character_features
-        elif modality == "pos":
-            features_of_modality = self.pos_features
+        features_of_modality = features[modality]
 
         max_frequency = 0
         for feature in features_of_modality:
@@ -155,29 +141,34 @@ def create_event(candidate_profiles, anon_profile, modality):
     num_authors = len(candidate_profiles)
     if modality == "word":
         word_features = extract_word_features(anon_profile)
+        anon_profile.features["word"] = word_features
         word_event = construct_event(word_features, "word", num_authors)
         return word_event
 
     if modality == "character":
         character_features = extract_character_features(anon_profile)
+        anon_profile.features["character"] = character_features
         character_event = construct_event(character_features, "character", num_authors)
         return character_event
 
     if modality == "pos":
         pos_features = extract_pos_features(anon_profile)
+        anon_profile.features["pos"] = pos_features
         pos_event = construct_event(pos_features, "pos", num_authors)
         return pos_event
+
 
 
 def create_events(candidate_profiles, anon_profile):
     num_authors = len(candidate_profiles)
     events = []
+    anon_profile = VEAProfile(anon_profile)
     modalities = ("word", "character", "pos")
     for modality in modalities:
         new_event = create_event(candidate_profiles, anon_profile, modality)
         events.append(new_event)
     
-    return events
+    return events, anon_profile
 
 
 def tf(feature, candidate):
@@ -201,9 +192,9 @@ def extract_candidate_features(candidate_profiles):
     for candidate_profile in candidate_profiles:
         candidate = VEAProfile(candidate_profile)
 
-        candidate.word_features = extract_word_features(candidate)
-        candidate.character_features = extract_character_features(candidate)
-        candidate.pos_features = extract_pos_features(candidate)
+        candidate.features["word"] = extract_word_features(candidate)
+        candidate.features["character"] = extract_character_features(candidate)
+        candidate.features["pos"] = extract_pos_features(candidate)
 
         candidates.append(candidate)
 
@@ -283,8 +274,59 @@ def author_is_correct(event, real_author_index):
 
     return predicted_author_index == real_author_index
 
-def generate_sample(event, profile):
-    pass
+def find_second_highest(array):
+    if len(array) < 2:
+        raise Exception()
+
+    array_copy = copy.copy(array)
+    max_index = array_copy.index(max(array_copy))
+    del array_copy[index]
+
+    return max(array_copy)
+
+'''Table II
+- average score
+- max score
+- min score
+- distance(max to runner-up)
+- num tokens in doc
+- num tokens shared between doc and docs
+'''
+# The sample is used to build a linear model, to estimate confidence
+def generate_sample(event, anonymous_doc, candidates):
+    sample = []
+    scores = event.scores
+
+    average_score = sum(scores) / float(len(scores))
+    sample.append(average_score)
+    
+    max_score = max(scores)
+    sample.append(max_score)
+
+    min_score = min(scores)
+    sample.append(min_scores)
+
+    runner_up = find_second_highest(scores)
+    distance = max_score - runner_up
+    sample.append(distance)
+
+    num_tokens = len(event.evidence_units)
+    sample.append(num_tokens)
+
+    anonymous_tokens = anonymous_doc.features[event.modality]
+    anonymous_tokens = [feature.content for feature in anonymous_tokens]
+
+    candidate_token_pool = []
+    for candidate in candidates:
+        for feature in candidate.features[event.modality]:
+            if feature.content not in candidate_token_pool:
+                candidate_token_pool.append(feature.content)
+
+    shared_tokens = list(set(anonymous_tokens) & set(candidate_token_pool))
+    num_shared_tokens = len(shared_tokens)
+    sample.append(num_shared_tokens)
+
+    return sample
 
 def estimate_confidence(events, anon_profile, candidates):
     samples = []
@@ -296,14 +338,19 @@ def estimate_confidence(events, anon_profile, candidates):
 
             # lines 6-16
             for author_index, test_doc in enumerate(testing_group):
-                candidates_temp = copy.copy(training_group)
-                test_event = create_event(candidates_temp, test_doc, event.modality)
-                candidates = extract_candidate_features(candidates_temp, test_event)
-                score_event(test_event, test_doc, candidates)
+                # of type Profile
+                candidates_profiles = copy.copy(training_group)
+
+                test_event = create_event(candidate_profiles, test_doc, event.modality)
+
+                # of type VEAProfile
+                candidates_temp = extract_candidate_features(candidates_temp, test_event)
+                score_event(test_event, test_doc, candidates_temp)
+
                 if author_is_correct(test_event, author_index):
                     correct_guess += 1
 
-                sample = generate_sample(test_event, test_doc)
+                sample = generate_sample(test_event, test_doc, candidates_temp)
                 fold_samples.append(sample)
             
             # lines 17-20
@@ -315,12 +362,12 @@ def estimate_confidence(events, anon_profile, candidates):
             samples += fold_samples
 
         model = build_model(samples)
-        estimated_confidence = model.predict(generate_sample(event, anon_profile))
+        estimated_confidence = model.predict(generate_sample(event, anon_profile, candidates))
         return estimated_confidence
                 
 
 def analyze(anon_profile, candidate_profiles):
-    events = create_events(candidate_profiles, anon_profile)
+    events, anon_profile = create_events(candidate_profiles, anon_profile)
     candidates = extract_candidate_features(candidate_profiles, events)
     score_events(events, anon_profile, candidates)
     estimate_confidence(events, anon_profile, candidates)

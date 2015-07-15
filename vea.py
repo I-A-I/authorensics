@@ -13,6 +13,7 @@ from math import log10
 from math import floor
 import operator
 import copy
+import numpy as np
 
 # This is the Visualizable Evidence-Driven Approach (VEA) method
 
@@ -328,6 +329,31 @@ def generate_sample(event, anonymous_doc, candidates):
 
     return sample
 
+def build_model(samples):
+    inputs = []
+    # Remove last dimension
+    for sample in samples:
+        input_ = sample[:-1]
+        input_ = np.array(input_)
+        inputs.append(input_)
+    inputs = np.array(inputs)
+
+    targets = []
+    for sample in samples:
+        targets.append(sample[-1])
+    targets = np.array(targets)
+
+    model = np.linalg.lstsq(inputs, targets)
+
+def predict(model, sample):
+    coefficients = model[0]
+    precision_estimate = 0
+    for index, coefficient in enumerated(coefficients):
+        precision_estimate += coefficient * sample[index]
+
+    return precision_estimate
+
+
 def estimate_confidence(events, anon_profile, candidates):
     samples = []
     for event in events:
@@ -362,7 +388,7 @@ def estimate_confidence(events, anon_profile, candidates):
             samples += fold_samples
 
         model = build_model(samples)
-        estimated_confidence = model.predict(generate_sample(event, anon_profile, candidates))
+        estimated_confidence = predict(model, generate_sample(event, anon_profile, candidates))
         return estimated_confidence
                 
 

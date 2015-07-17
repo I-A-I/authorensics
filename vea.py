@@ -3,7 +3,7 @@ TO-DO
 1. (DONE) Write generate_sample
 2. (DONE) Get linear model working
 3. (DONE )Implement feature extraction
-4. Implement algos #4, 5
+4. (DONE) Implement algos #4, 5
 5. Visualization?
 '''
 
@@ -16,22 +16,28 @@ import copy
 import numpy as np
 import nltk
 
+# The maximum number of n-grams to use
 MAX_GRAM = 8
 
 # This is the Visualizable Evidence-Driven Approach (VEA)
+# Described in their paper by Steven H. H. Ding, C. M. Fung, and Mourad Debbabi
 
-# An event contains a list of evidence units
+# Each modality—word, character, part of speech—gets an event
+# This event will contain data like author scores and confidence
+# It contains EvidenceUnit instances
 class Event:
     def __init__(self, modality, num_authors):
         self.modality = modality
         self.confidence = None
         self.scores = [None] * num_authors
         self.evidence_units = []
+        self.prediction_index = None
 
     def add_eu(self, evidence_unit):
         self.evidence_units.append(evidence_unit)
 
 # An evidence unit is ONE feature (one word, one character)
+# It is contained in an Event instance
 class EvidenceUnit:
     def __init__(self, feature, modality, num_authors):
         self.modality = modality
@@ -40,6 +46,8 @@ class EvidenceUnit:
         self.scores = [None] * num_authors
         self.idf = 0
     
+    # Determine the overall discriminant power of a feature
+    # Used in algorithm #2
     def calculate_idf(self, candidates):
         authors_ever_used = 0
         for candidate in candidates:
@@ -60,6 +68,8 @@ class Feature:
         self.modality = modality
         self.frequency = frequency
 
+# Profile is the class used by the server
+# VEAProfile is adapted for this algorithm's purposes
 class VEAProfile(Profile):
     def __init__(self, profile):
         self.single_text = profile.single_text
@@ -67,7 +77,7 @@ class VEAProfile(Profile):
 
         self.features = None
 
-    # Find matching feature
+    # Find matching feature in features array
     def find_feature(self, feature):
         features_of_modality = features[modality]
 
@@ -77,6 +87,8 @@ class VEAProfile(Profile):
         
         return None
 
+    # Find feature with greatest frequency
+    # Used for TF
     def find_max_feature_frequency(modality):
         features_of_modality = features[modality]
 
@@ -300,6 +312,9 @@ def score_event(event, anon_profile, candidates):
         dot_product = sum(map(operator.mul, anon_scores, candidate_scores))
         event.scores[index] = dot_product
 
+    max_score = max(event.scores)
+    event.prediction_index = event.scores.index(max_score)
+
 
 def score_events(events, anon_profile, candidates):
     for event in events:
@@ -426,7 +441,7 @@ def predict(model, sample):
 
     return precision_estimate
 
-
+# Algorithm 3
 def estimate_confidence(events, anon_profile, candidates):
     samples = []
     for event in events:
@@ -462,11 +477,42 @@ def estimate_confidence(events, anon_profile, candidates):
 
         model = build_model(samples)
         estimated_confidence = predict(model, generate_sample(event, anon_profile, candidates))
-        return estimated_confidence
-                
+        event.confidence = estimated_confidence
+
+# Algorithm 4
+def normalize_scores(events):
+    for event in events:
+        confidence = event.confidence
+        self.scores = [score * confidence for score in event.scores]
+        for index, eu in enumerated(event.evidence_units):
+            eu.scores = [score * confidence for score in eu.scores]
+            event.evidence_units[index] = eu
+
+# Algorithm 5
+def combine_events(events, candidates):
+    final_scores = [0] * len(candidates)
+    for event in events:
+        for index, score in enumerate(event.scores):
+            final_scores[index] += score
+
+    max_score = max(final_scores)
+    author_index = final_scores.index(max_score)
+
+    max_confidence = 0
+    for event in events:
+        if event.prediction_index == author_index:
+            if event.confidence > max_confidence:
+                max_confidence = event.confidence
+
+    return (author_index, max_confidence)
+
+
 
 def analyze(anon_profile, candidate_profiles):
     events, anon_profile = create_events(candidate_profiles, anon_profile)
     candidates = extract_candidate_features(candidate_profiles, events)
     score_events(events, anon_profile, candidates)
     estimate_confidence(events, anon_profile, candidates)
+    normalize_scores(events)
+    author_index, confidence = combine_events(events, candidates)
+    return (author_index, confidence)

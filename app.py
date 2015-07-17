@@ -39,7 +39,6 @@ def index():
     for candidate in candidates_raw:
         # Is plaintext, not FB chat
         if candidate["name"]:
-            profile = Profile(candidate["text"])
             if candidate["name"] in candidate_profiles:
                 candidate_profiles[candidate["name"]].add_text(candidate["text"])
             else:
@@ -63,7 +62,7 @@ def index():
     elif algorithm == "vea":
         results = vea.analyze(anon_profile, candidate_profiles)
 
-    return render_template("results.html", results=results)
+    return render_template("results.html", results=results, algorithm=algorithm)
 
 if __name__=="__main__":
     app.debug=True

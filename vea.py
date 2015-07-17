@@ -11,6 +11,7 @@ TO-DO
 from profile import Profile
 from math import log10
 from math import floor
+from time import time
 import operator
 import copy
 import numpy as np
@@ -22,7 +23,7 @@ MAX_GRAM = 8
 # This is the Visualizable Evidence-Driven Approach (VEA)
 # Described in their paper by Steven H. H. Ding, C. M. Fung, and Mourad Debbabi
 
-# Each modality—word, character, part of speech—gets an event
+# Each modality--word, character, part of speech--gets an event
 # This event will contain data like author scores and confidence
 # It contains EvidenceUnit instances
 class Event:
@@ -55,7 +56,7 @@ class EvidenceUnit:
                 authors_ever_used += 1
 
         constant = 0.1
-        num_authors = candidates.length
+        num_authors = len(candidates)
 
         self.idf = log10(num_authors / (constant + authors_ever_used))
 
@@ -75,11 +76,11 @@ class VEAProfile(Profile):
         self.single_text = profile.single_text
         self.texts = profile.texts
 
-        self.features = None
+        self.features = {}
 
     # Find matching feature in features array
     def find_feature(self, feature):
-        features_of_modality = features[modality]
+        features_of_modality = self.features[feature.modality]
 
         for self_feature in features_of_modality:
             if self_feature.content == feature.content:
@@ -89,8 +90,8 @@ class VEAProfile(Profile):
 
     # Find feature with greatest frequency
     # Used for TF
-    def find_max_feature_frequency(modality):
-        features_of_modality = features[modality]
+    def find_max_feature_frequency(self, modality):
+        features_of_modality = self.features[modality]
 
         max_frequency = 0
         for feature in features_of_modality:
@@ -103,7 +104,7 @@ class VEAProfile(Profile):
     # We're doing a 10-fold cross-validation test
     # If fold_number = 0, return first 10% of samples
     # as testing, last 90% of samples as training
-    def generate_fold_samples(fold_number):
+    def generate_fold_samples(self, fold_number):
         # If number of texts is divisible by 10, things are easy
         # We don't need to break up any samples
         if len(self.texts) % 10 == 0:
@@ -145,7 +146,7 @@ def extract_word_features(profile):
         right = length
         while right < len(raw_features):
 
-            feature = raw_features[left:right + 1]
+            feature = " ".join(raw_features[left:right + 1])
             if feature in feature_frequencies:
                 feature_frequencies[feature] += 1
             else:
@@ -192,15 +193,31 @@ def extract_character_features(profile):
 
     return all_features
 
-def extract_pos_features(profile, word_features):
-    pos_frequencies = {}
-    for word_feature in word_features:
-        parts_of_speech = nltk.pos_tag(word_feature.content)
-        parts_of_speech = " ".join([pos[1] for pos in parts_of_speech])
-        if parts_of_speech in pos_frequencies:
-            pos_frequencies[parts_of_speech] += 1
-        else:
-            pos_frequencies[parts_of_speech] = 1
+# When n-grams were rearranged from word_features, total computation time for 
+# one text was 33.8 seconds
+def extract_pos_features(profile):
+    text = profile.single_text
+    time_before = time()
+    raw_features = nltk.pos_tag(text)
+    time_after = time()
+    feature_frequencies = {}
+
+    for length in range(1, MAX_GRAM + 1):
+        left = 0
+        right = length
+        while right < len(raw_features):
+            ngram = raw_features[left:right + 1]
+            parts_of_speech = [pair[1] for pair in ngram]
+            feature = " ".join(parts_of_speech)
+            if feature in feature_frequencies:
+                feature_frequencies[feature] += 1
+            else:
+                feature_frequencies[feature] = 1
+
+            left += length
+            right += length
+
+    print "\tTime spent on POS tagging: " + str(time_after - time_before)
 
     all_features = []
     for feature_content, feature_frequency in feature_frequencies.iteritems():
@@ -236,13 +253,10 @@ def create_event(candidate_profiles, anon_profile, modality):
         return character_event
 
     if modality == "pos":
-        word_features = anon_profile.features["word"]
-        pos_features = extract_pos_features(anon_profile, word_features)
+        pos_features = extract_pos_features(anon_profile)
         anon_profile.features["pos"] = pos_features
-
         pos_event = construct_event(pos_features, "pos", num_authors)
         return pos_event
-
 
 
 def create_events(candidate_profiles, anon_profile):
@@ -273,16 +287,34 @@ def tf(feature, candidate):
     return frequency / max_feature_frequency
 
 # Find word, character, POS features in candidates
-def extract_candidate_features(candidate_profiles):
-    candidates = []
-    for candidate_profile in candidate_profiles:
-        candidate = VEAProfile(candidate_profile)
+def extract_candidate_features(candidate_profiles, events, convert_to_vea=True):
+    # this mode is not used by testing
+    if convert_to_vea:
+        candidates = []
+        for name, candidate_profile in candidate_profiles.iteritems():
+            candidate = VEAProfile(candidate_profile)
 
-        candidate.features["word"] = extract_word_features(candidate)
-        candidate.features["character"] = extract_character_features(candidate)
-        candidate.features["pos"] = extract_pos_features(candidate)
+            candidate.features["word"] = extract_word_features(candidate)
+            print "word finished"
+            candidate.features["character"] = extract_character_features(candidate)
+            print "character finished"
+            candidate.features["pos"] = extract_pos_features(candidate)
+            print "pos finished"
 
-        candidates.append(candidate)
+            candidates.append(candidate)
+
+    # this mode is used by testing
+    else:
+        candidates = []
+        for candidate in candidate_profiles:
+            candidate.features["word"] = extract_word_features(candidate)
+            print "word finished"
+            candidate.features["character"] = extract_character_features(candidate)
+            print "character finished"
+            candidate.features["pos"] = extract_pos_features(candidate)
+            print "pos finished"
+
+            candidates.append(candidate)
 
     for index, event in enumerate(events):
         for eu_index, eu in enumerate(event.evidence_units):
@@ -306,7 +338,7 @@ def score_event(event, anon_profile, candidates):
         candidate_scores = []
         for eu_index, eu in enumerate(event.evidence_units):
             score = tf(eu.feature, candidate) * eu.idf
-            eu.scores[index] = score * anon_scores[eu_scores]
+            eu.scores[index] = score * anon_scores[eu_index]
             candidate_scores.append(score)
 
         dot_product = sum(map(operator.mul, anon_scores, candidate_scores))
@@ -328,10 +360,10 @@ def generate_fold_groups(fold_number, candidates):
     for candidate in candidates:
         testing_sample, training_sample = candidate.generate_fold_samples(fold_number)
 
-        testing_profile = Profile(testing_sample)
+        testing_profile = VEAProfile(Profile(testing_sample))
         testing_group.append(testing_profile)
 
-        training_profile = Profile(training_sample)
+        training_profile = VEAProfile(Profile(training_sample))
         training_group.append(training_profile)
 
     return testing_group, training_group
@@ -364,8 +396,11 @@ def author_is_correct(event, real_author_index):
     return predicted_author_index == real_author_index
 
 def find_second_highest(array):
-    if len(array) < 2:
+    if len(array) < 1:
         raise Exception()
+    
+    elif len(array) == 1:
+        return 0
 
     array_copy = copy.copy(array)
     max_index = array_copy.index(max(array_copy))
@@ -393,7 +428,7 @@ def generate_sample(event, anonymous_doc, candidates):
     sample.append(max_score)
 
     min_score = min(scores)
-    sample.append(min_scores)
+    sample.append(min_score)
 
     runner_up = find_second_highest(scores)
     distance = max_score - runner_up
@@ -432,11 +467,12 @@ def build_model(samples):
     targets = np.array(targets)
 
     model = np.linalg.lstsq(inputs, targets)
+    return model
 
 def predict(model, sample):
     coefficients = model[0]
     precision_estimate = 0
-    for index, coefficient in enumerated(coefficients):
+    for index, coefficient in enumerate(coefficients):
         precision_estimate += coefficient * sample[index]
 
     return precision_estimate
@@ -453,12 +489,12 @@ def estimate_confidence(events, anon_profile, candidates):
             # lines 6-16
             for author_index, test_doc in enumerate(testing_group):
                 # of type Profile
-                candidates_profiles = copy.copy(training_group)
+                candidate_profiles = copy.copy(training_group)
 
                 test_event = create_event(candidate_profiles, test_doc, event.modality)
 
                 # of type VEAProfile
-                candidates_temp = extract_candidate_features(candidates_temp, test_event)
+                candidates_temp = extract_candidate_features(candidate_profiles, [test_event], convert_to_vea=False)
                 score_event(test_event, test_doc, candidates_temp)
 
                 if author_is_correct(test_event, author_index):
@@ -483,8 +519,8 @@ def estimate_confidence(events, anon_profile, candidates):
 def normalize_scores(events):
     for event in events:
         confidence = event.confidence
-        self.scores = [score * confidence for score in event.scores]
-        for index, eu in enumerated(event.evidence_units):
+        event.scores = [score * confidence for score in event.scores]
+        for index, eu in enumerate(event.evidence_units):
             eu.scores = [score * confidence for score in eu.scores]
             event.evidence_units[index] = eu
 
@@ -510,9 +546,15 @@ def combine_events(events, candidates):
 
 def analyze(anon_profile, candidate_profiles):
     events, anon_profile = create_events(candidate_profiles, anon_profile)
+    print "create_events"
     candidates = extract_candidate_features(candidate_profiles, events)
+    print "extract_candidate_features"
     score_events(events, anon_profile, candidates)
+    print "score_events"
     estimate_confidence(events, anon_profile, candidates)
+    print "estimate_confidence"
     normalize_scores(events)
+    print "normalize_scores"
     author_index, confidence = combine_events(events, candidates)
+    print "combine_events"
     return (author_index, confidence)

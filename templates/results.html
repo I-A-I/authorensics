@@ -1,29 +1,35 @@
 <html>
-  <head>
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/style.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
-  </head>
-  <body>
-    <center>
-      <div id="content">
-          <h1><a href="/">Authorensics</a></h1>
-	{% for name, similarity in results.iteritems() %}
-        <h3 id={{ name}}>{{ name }}: {{ similarity}}%</h3>
-	{% endfor %}
-      </div>
-      <div id="barchart">
-      </div>
-    </center>
-    <script src="static/results.js"></script>
+    <head>
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/style.css">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+    </head>
+    <body>
+        <script>var results = {{ results }} </script>
+        {% if algorithm == "scap" %}
+            <center>
+                <div id="content">
+                    <h1><a href="/">Authorensics</a></h1>
+                        {% for name, similarity in results.iteritems() %}
+                            <h3 id={{ name}}>{{ name }}: {{ similarity}}%</h3>
+                        {% endfor %}
+                </div>
+                <div id="barchart">
+                </div>
+            </center>
+            <script src="static/results_scap.js"></script>
+        {% endif %}
+        {% if algorithm == "scap" %}
+            <script src="static/results_vea.js"></script>
+        {% endif %}
   </body>
 </html>

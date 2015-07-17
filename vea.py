@@ -1,8 +1,8 @@
 '''
 TO-DO
 1. (DONE) Write generate_sample
-2. Get linear model working
-3. Implement feature extraction
+2. (DONE) Get linear model working
+3. (DONE )Implement feature extraction
 4. Implement algos #4, 5
 5. Visualization?
 '''
@@ -14,8 +14,11 @@ from math import floor
 import operator
 import copy
 import numpy as np
+import nltk
 
-# This is the Visualizable Evidence-Driven Approach (VEA) method
+MAX_GRAM = 8
+
+# This is the Visualizable Evidence-Driven Approach (VEA)
 
 # An event contains a list of evidence units
 class Event:
@@ -120,14 +123,82 @@ class VEAProfile(Profile):
         return test_group, training_group
 
 
-def extract_word_features(anon_profile):
-    pass
+def extract_word_features(profile):
+    text = profile.single_text
+    raw_features = nltk.word_tokenize(text)
+    feature_frequencies = {}
 
-def extract_character_features(anon_profile):
-    pass
+    for length in range(1, MAX_GRAM + 1):
+        left = 0
+        right = length
+        while right < len(raw_features):
 
-def extract_pos_features(anon_profile):
-    pass
+            feature = raw_features[left:right + 1]
+            if feature in feature_frequencies:
+                feature_frequencies[feature] += 1
+            else:
+                feature_frequencies[feature] = 1
+
+            left += length
+            right += length
+
+
+    all_features = []
+    for feature_content, feature_frequency in feature_frequencies.iteritems():
+        feature_modality = "word"
+        feature_length = len(feature_content.split(" "))
+        new_feature = Feature(feature_content, feature_length, feature_modality, feature_frequency)
+        all_features.append(new_feature)
+
+    return all_features
+
+def extract_character_features(profile):
+    text = profile.single_text
+    feature_frequencies = {}
+
+    for length in range(1, MAX_GRAM + 1):
+        left = 0
+        right = length
+        while right < len(text):
+
+            feature = text[left:right + 1]
+            if feature in feature_frequencies:
+                feature_frequencies[feature] += 1
+            else:
+                feature_frequencies[feature] = 1
+
+            left += length
+            right += length
+
+
+    all_features = []
+    for feature_content, feature_frequency in feature_frequencies.iteritems():
+        feature_modality = "character"
+        feature_length = len(feature_content)
+        new_feature = Feature(feature_content, feature_length, feature_modality, feature_frequency)
+        all_features.append(new_feature)
+
+    return all_features
+
+def extract_pos_features(profile, word_features):
+    pos_frequencies = {}
+    for word_feature in word_features:
+        parts_of_speech = nltk.pos_tag(word_feature.content)
+        parts_of_speech = " ".join([pos[1] for pos in parts_of_speech])
+        if parts_of_speech in pos_frequencies:
+            pos_frequencies[parts_of_speech] += 1
+        else:
+            pos_frequencies[parts_of_speech] = 1
+
+    all_features = []
+    for feature_content, feature_frequency in feature_frequencies.iteritems():
+        feature_modality = "pos"
+        feature_length = len(feature_content.split(" "))
+        new_feature = Feature(feature_content, feature_length, feature_modality, feature_frequency)
+        all_features.append(new_feature)
+
+    return all_features
+
 
 def construct_event(features, modality, num_authors):
     event = Event(modality, num_authors)
@@ -153,8 +224,10 @@ def create_event(candidate_profiles, anon_profile, modality):
         return character_event
 
     if modality == "pos":
-        pos_features = extract_pos_features(anon_profile)
+        word_features = anon_profile.features["word"]
+        pos_features = extract_pos_features(anon_profile, word_features)
         anon_profile.features["pos"] = pos_features
+
         pos_event = construct_event(pos_features, "pos", num_authors)
         return pos_event
 

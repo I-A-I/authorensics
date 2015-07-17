@@ -4,7 +4,7 @@ DEMO VIDEO: https://www.youtube.com/watch?v=XksrKfxEprg
 
 An easily usable tool for anonymous author attribution, drawing sample texts from Facebook messaging. If you have an anonymous text and several candidate authors, *authorensics* uses one of two algorithms to calculate the most likely author.
 
-Packages needed: flask, scipy
+Packages needed: flask, scipy, nltk
 
 By Philipp Steinmann, Richard Zhan, Steven Zabolotny, Ziwei Ye
 

@@ -404,7 +404,7 @@ def find_second_highest(array):
 
     array_copy = copy.copy(array)
     max_index = array_copy.index(max(array_copy))
-    del array_copy[index]
+    del array_copy[max_index]
 
     return max(array_copy)
 

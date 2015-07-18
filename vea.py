@@ -144,16 +144,16 @@ def extract_word_features(profile):
     for length in range(1, MAX_GRAM + 1):
         left = 0
         right = length
-        while right < len(raw_features):
 
-            feature = " ".join(raw_features[left:right + 1])
+        while right <= len(raw_features):
+            feature = " ".join(raw_features[left:right])
             if feature in feature_frequencies:
                 feature_frequencies[feature] += 1
             else:
                 feature_frequencies[feature] = 1
 
-            left += length
-            right += length
+            left += 1
+            right += 1
 
 
     all_features = []
@@ -217,7 +217,7 @@ def extract_pos_features(profile):
             left += length
             right += length
 
-    print "\tTime spent on POS tagging: " + str(time_after - time_before)
+    # print "\tTime spent on POS tagging: " + str(time_after - time_before)
 
     all_features = []
     for feature_content, feature_frequency in feature_frequencies.iteritems():
@@ -295,11 +295,11 @@ def extract_candidate_features(candidate_profiles, events, convert_to_vea=True):
             candidate = VEAProfile(candidate_profile)
 
             candidate.features["word"] = extract_word_features(candidate)
-            print "word finished"
+            # print "word finished"
             candidate.features["character"] = extract_character_features(candidate)
-            print "character finished"
+            # print "character finished"
             candidate.features["pos"] = extract_pos_features(candidate)
-            print "pos finished"
+            # print "pos finished"
 
             candidates.append(candidate)
 
@@ -308,11 +308,11 @@ def extract_candidate_features(candidate_profiles, events, convert_to_vea=True):
         candidates = []
         for candidate in candidate_profiles:
             candidate.features["word"] = extract_word_features(candidate)
-            print "word finished"
+            # print "word finished"
             candidate.features["character"] = extract_character_features(candidate)
-            print "character finished"
+            # print "character finished"
             candidate.features["pos"] = extract_pos_features(candidate)
-            print "pos finished"
+            # print "pos finished"
 
             candidates.append(candidate)
 
@@ -547,6 +547,8 @@ def combine_events(events, candidates):
 def analyze(anon_profile, candidate_profiles):
     events, anon_profile = create_events(candidate_profiles, anon_profile)
     print "create_events"
+    for feature in anon_profile.features["word"]:
+        print feature.content
     candidates = extract_candidate_features(candidate_profiles, events)
     print "extract_candidate_features"
     score_events(events, anon_profile, candidates)

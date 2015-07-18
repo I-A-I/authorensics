@@ -174,14 +174,14 @@ def extract_character_features(profile):
         right = length
         while right < len(text):
 
-            feature = text[left:right + 1]
+            feature = text[left:right]
             if feature in feature_frequencies:
                 feature_frequencies[feature] += 1
             else:
                 feature_frequencies[feature] = 1
 
-            left += length
-            right += length
+            left += 1
+            right += 1
 
 
     all_features = []
@@ -206,7 +206,7 @@ def extract_pos_features(profile):
         left = 0
         right = length
         while right < len(raw_features):
-            ngram = raw_features[left:right + 1]
+            ngram = raw_features[left:right]
             parts_of_speech = [pair[1] for pair in ngram]
             feature = " ".join(parts_of_speech)
             if feature in feature_frequencies:
@@ -214,8 +214,8 @@ def extract_pos_features(profile):
             else:
                 feature_frequencies[feature] = 1
 
-            left += length
-            right += length
+            left += 1
+            right += 1
 
     # print "\tTime spent on POS tagging: " + str(time_after - time_before)
 
@@ -547,8 +547,6 @@ def combine_events(events, candidates):
 def analyze(anon_profile, candidate_profiles):
     events, anon_profile = create_events(candidate_profiles, anon_profile)
     print "create_events"
-    for feature in anon_profile.features["word"]:
-        print feature.content
     candidates = extract_candidate_features(candidate_profiles, events)
     print "extract_candidate_features"
     score_events(events, anon_profile, candidates)

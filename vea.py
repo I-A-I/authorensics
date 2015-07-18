@@ -90,11 +90,12 @@ class VEAProfile(Profile):
 
     # Find feature with greatest frequency
     # Used for TF
-    def find_max_feature_frequency(self, modality):
+    def find_max_feature_frequency(self, modality, length):
         features_of_modality = self.features[modality]
+        features_of_length = [feature for feature in features_of_modality if feature.length == length]
 
         max_frequency = 0
-        for feature in features_of_modality:
+        for feature in features_of_length:
             if feature.frequency > max_frequency:
                 max_frequency = feature.frequency
 
@@ -273,6 +274,7 @@ def create_events(candidate_profiles, anon_profile):
 
 def tf(feature, candidate):
     modality = feature.modality
+    length = feature.length
 
     candidate_feature = candidate.find_feature(feature)
     if (candidate_feature):
@@ -280,11 +282,11 @@ def tf(feature, candidate):
     else:
         frequency = 0
 
-    max_feature_frequency = candidate.find_max_feature_frequency(modality)
+    max_feature_frequency = candidate.find_max_feature_frequency(modality, length)
     if max_feature_frequency == 0:
         return 0
 
-    return frequency / max_feature_frequency
+    return float(frequency) / max_feature_frequency
 
 # Find word, character, POS features in candidates
 def extract_candidate_features(candidate_profiles, events, convert_to_vea=True):
@@ -295,11 +297,8 @@ def extract_candidate_features(candidate_profiles, events, convert_to_vea=True):
             candidate = VEAProfile(candidate_profile)
 
             candidate.features["word"] = extract_word_features(candidate)
-            # print "word finished"
             candidate.features["character"] = extract_character_features(candidate)
-            # print "character finished"
             candidate.features["pos"] = extract_pos_features(candidate)
-            # print "pos finished"
 
             candidates.append(candidate)
 
@@ -308,11 +307,8 @@ def extract_candidate_features(candidate_profiles, events, convert_to_vea=True):
         candidates = []
         for candidate in candidate_profiles:
             candidate.features["word"] = extract_word_features(candidate)
-            # print "word finished"
             candidate.features["character"] = extract_character_features(candidate)
-            # print "character finished"
             candidate.features["pos"] = extract_pos_features(candidate)
-            # print "pos finished"
 
             candidates.append(candidate)
 
@@ -547,14 +543,20 @@ def combine_events(events, candidates):
 def analyze(anon_profile, candidate_profiles):
     events, anon_profile = create_events(candidate_profiles, anon_profile)
     print "create_events"
+
     candidates = extract_candidate_features(candidate_profiles, events)
     print "extract_candidate_features"
+
     score_events(events, anon_profile, candidates)
     print "score_events"
+
     estimate_confidence(events, anon_profile, candidates)
     print "estimate_confidence"
+
     normalize_scores(events)
     print "normalize_scores"
+
     author_index, confidence = combine_events(events, candidates)
     print "combine_events"
+
     return (author_index, confidence)

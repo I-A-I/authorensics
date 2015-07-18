@@ -14,7 +14,7 @@ This program is a Flask server.
 
 Packages needed: 
 - flask
-- scipy, 
+- scipy
 - nltk (with "Punkt" and "Maxent" models installed)
 
 

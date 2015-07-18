@@ -52,13 +52,13 @@ class EvidenceUnit:
     def calculate_idf(self, candidates):
         authors_ever_used = 0
         for candidate in candidates:
-            if (candidate.find_feature(self.feature)):
+            if candidate.find_feature(self.feature):
                 authors_ever_used += 1
 
         constant = 0.1
         num_authors = len(candidates)
 
-        self.idf = log10(num_authors / (constant + authors_ever_used))
+        self.idf = log10(float(num_authors) / (constant + authors_ever_used))
 
 
 # Example: If modality is "word", content could be "it is" and length "2"

@@ -12,7 +12,11 @@ class Profile:
     def add_text(self, new_text):
         new_text = new_text.replace("\n", " ")
         self.texts.append(new_text)
-        self.single_text = self.single_text + " " + new_text
+
+        if len(self.single_text) > 0:
+            self.single_text = self.single_text + " " + new_text
+        else:
+            self.single_text = new_text
 
     # Add multiple textsshell    
     def add_texts(self, *new_texts):

@@ -28,6 +28,7 @@ def index():
 
         if str(counter) in request.form.keys():
             text = request.form[str(counter)]
+            text = text.strip()
         else:
             break
 

@@ -198,9 +198,8 @@ def extract_character_features(profile):
 # one text was 33.8 seconds
 def extract_pos_features(profile):
     text = profile.single_text
-    time_before = time()
-    raw_features = nltk.pos_tag(text)
-    time_after = time()
+    tagged_text = nltk.word_tokenize(text)
+    raw_features = nltk.pos_tag(tagged_text)
     feature_frequencies = {}
 
     for length in range(1, MAX_GRAM + 1):
@@ -217,8 +216,6 @@ def extract_pos_features(profile):
 
             left += 1
             right += 1
-
-    # print "\tTime spent on POS tagging: " + str(time_after - time_before)
 
     all_features = []
     for feature_content, feature_frequency in feature_frequencies.iteritems():

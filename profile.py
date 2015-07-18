@@ -10,9 +10,9 @@ class Profile:
 
     # Add a single text
     def add_text(self, new_text):
-        # self.texts.append(unicode(new_text,'utf-8'))
+        new_text = new_text.replace("\n", " ")
         self.texts.append(new_text)
-        self.single_text += "\n" + new_text
+        self.single_text = self.single_text + " " + new_text
 
     # Add multiple textsshell    
     def add_texts(self, *new_texts):

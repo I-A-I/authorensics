@@ -65,7 +65,7 @@ def index():
                          candidate_profiles[chat_name] = Profile(chat_text)
     # Check length
     if len([1 for profile in candidate_profiles.values() if len(profile.single_text) < MIN_CHARACTERS]) > 0:
-        return render_template("index.html", error = "You cannot have any texts shorter than %d characters." % (MIN_CHARACTERS), anon_text = anon_text)
+        return render_template("index.html", error = "You cannot have any candidate texts shorter than %d characters." % (MIN_CHARACTERS), anon_text = anon_text)
 
 
     if algorithm == "scap":

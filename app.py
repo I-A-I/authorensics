@@ -6,6 +6,12 @@ import re
 
 app = Flask(__name__)
 
+MIN_CHARACTERS = 140
+
+@app.route("/about", methods=["GET"])
+def about():
+    return render_template("about.html")
+
 @app.route("/", methods=["GET","POST"])
 def index():
     if request.method=="GET":
@@ -57,6 +63,10 @@ def index():
                          candidate_profiles[chat_name].add_text(chat_text)
                      else:
                          candidate_profiles[chat_name] = Profile(chat_text)
+    # Check length
+    if len([1 for profile in candidate_profiles.values() if len(profile.single_text) < MIN_CHARACTERS]) > 0:
+        return render_template("index.html", error = "You cannot have any texts shorter than %d characters." % (MIN_CHARACTERS), anon_text = anon_text)
+
 
     if algorithm == "scap":
         results = scap.analyze(anon_profile, candidate_profiles)

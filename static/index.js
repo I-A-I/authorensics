@@ -23,7 +23,7 @@ function anonTextChanged() {
         $("#submit").removeClass("pure-button-disabled");
 
     var current_anon_text = d3.select("#anon")[0][0].value;
-    if (current_anon_text.length <= 1)
+    if (current_anon_text.length <= 0)
         $("#submit").addClass("pure-button-disabled");
 }
 

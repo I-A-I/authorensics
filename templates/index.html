@@ -1,49 +1,56 @@
 <! DOCTYPE html>
 <html>
-  <head>
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/style.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <title>Authorensics</title>
-  </head>
-  <body>
-    <center>
-      <div id="content">
-	<h1><a href="/">Authorensics</a></h1>
-	<form class="pure-form" method="POST">
-        <fieldset>
-          <h3>Which algorithm?</h3>
-          <label>
-              <input type="radio" name="algorithm" value="scap" checked>
-              Source Code Authorship Profile (SCAP)
-          </label>
-          <br>
-          <label>
-              <input type="radio" name="algorithm" value="vea">
-              Visualizable Evidence-Driven Approach (VEA)
-          </label>
-          <h3>Enter anonymous text </h3>
-          <textarea name="anon" id="anon" style="width:559px; height:107px"> </textarea>
+    <head>
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/style.css">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
+        <title>Authorensics</title>
+    </head>
+    <body>
+        <nav>
+            <h1><a href="/">Authorensics</a></h1>
+            <a href="/about" class="about">Learn more</a>
+      </nav>
+    <div id="content">
+        <center>
+            {% if error %}
+                <p class="error">{{ error }} </p>
+            {% endif %}
+            <form class="pure-form" method="POST">
+                <fieldset>
+                    <h3>Which algorithm?</h3>
+                    <label>
+                        <input type="radio" name="algorithm" value="scap" checked>
+                        Source Code Authorship Profile (SCAP)
+                    </label>
+                    <br>
+                    <label>
+                        <input type="radio" name="algorithm" value="vea">
+                        Visualizable Evidence-Driven Approach (VEA)
+                    </label>
+                    <h3>Enter anonymous text </h3>
+                    <textarea name="anon" id="anon" style="width:559px; height:107px">{% if anon_text %}{{anon_text}}{% endif %}</textarea>
 
-            <hr>
-            <h3>Add candidates</h3>
-            <button type="button" class="pure-button" id="chat">Add Facebook Chat</button>
-            <button type="button" class="pure-button" id="addc">Add Plaintext</button>
-            <br>
-            <div id="comp">
-            </div>
-            <br><br>
-            <input id="submit" class="pure-button pure-button-primary pure-button-disabled" type="submit" value="Find Author"></input>
-	  </fieldset>
-	</form>
-      </div>
-    </center>
+                    <hr>
+                    <h3>Add candidates</h3>
+                    <button type="button" class="pure-button" id="chat">Add Facebook Chat</button>
+                    <button type="button" class="pure-button" id="addc">Add Plaintext</button>
+                    <br>
+                    <div id="comp">
+                    </div>
+                    <br><br>
+                    <input id="submit" class="pure-button pure-button-primary pure-button-disabled button-xlarge" type="submit" value="Find Author"></input>
+                </fieldset>
+            </form>
+        </center>
+    </div>
     <script>
       window.fbAsyncInit = function() {
         FB.init({
@@ -62,5 +69,5 @@
        }(document, 'script', 'facebook-jssdk'));
     </script>
     <script src="static/index.js"></script>
-  </body>
+    </body>
 </html>

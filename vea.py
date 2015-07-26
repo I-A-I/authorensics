@@ -1,13 +1,3 @@
-'''
-TO-DO
-1. (DONE) Write generate_sample
-2. (DONE) Get linear model working
-3. (DONE )Implement feature extraction
-4. (DONE) Implement algos #4, 5
-5. Visualization?
-'''
-
-
 from profile import Profile
 from math import log10
 from math import floor
@@ -323,6 +313,7 @@ def score_event(event, anon_profile, candidates):
     anon_scores = []
     for eu in event.evidence_units:
         feature_score = tf(eu.feature, anon_profile)
+        # print "anon with " + eu.feature.content + ": " + str(feature_score)
         anon_scores.append(feature_score)
 
     # Lines 6-13
@@ -331,6 +322,7 @@ def score_event(event, anon_profile, candidates):
         candidate_scores = []
         for eu_index, eu in enumerate(event.evidence_units):
             score = tf(eu.feature, candidate) * eu.idf
+            # print str(index) + " with " + eu.feature.content + ": " + str(score) + " = " + str(tf(eu.feature, candidate)) + " * " + str(eu.idf)
             eu.scores[index] = score * anon_scores[eu_index]
             candidate_scores.append(score)
 
@@ -344,6 +336,8 @@ def score_event(event, anon_profile, candidates):
 def score_events(events, anon_profile, candidates):
     for event in events:
         score_event(event, anon_profile, candidates)
+        # print event.modality
+        # print event.scores
 
 # Needed for Algorithm 3
 # Return testing group and training group (containing profiles)
@@ -504,9 +498,15 @@ def estimate_confidence(events, anon_profile, candidates):
             # line 21
             samples += fold_samples
 
+        # print
+        # print samples
+
         model = build_model(samples)
         estimated_confidence = predict(model, generate_sample(event, anon_profile, candidates))
         event.confidence = estimated_confidence
+
+        ### REMOVE, FOR TESTING ONLY
+        event.confidence = 0.5
 
 # Algorithm 4
 def normalize_scores(events):
@@ -533,7 +533,7 @@ def combine_events(events, candidates):
             if event.confidence > max_confidence:
                 max_confidence = event.confidence
 
-    return (author_index, max_confidence)
+    return (author_index, max_confidence, final_scores)
 
 
 
@@ -544,11 +544,13 @@ def analyze(anon_profile, candidate_profiles):
     candidates = extract_candidate_features(candidate_profiles, events)
     print "extract_candidate_features"
 
+    print "START score_events"
     score_events(events, anon_profile, candidates)
-    print "score_events"
+    print "END score_events"
 
+    print "START estimate_confidence"
     estimate_confidence(events, anon_profile, candidates)
-    print "estimate_confidence"
+    print "END estimate_confidence"
 
     normalize_scores(events)
     print "normalize_scores"
@@ -556,4 +558,4 @@ def analyze(anon_profile, candidate_profiles):
     author_index, confidence = combine_events(events, candidates)
     print "combine_events"
 
-    return (author_index, confidence)
+    return (author_index, confidence, scores)
